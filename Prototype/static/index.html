@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zero-Shot Video Search</title>
+  <meta name="description" content="Search any video with natural language using CLIP. Find specific moments instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <!-- Background orbs -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <header>
+    <div class="logo">
+      <span class="logo-icon">⚡</span>
+      <span class="logo-text">VideoSearch<span class="accent">AI</span></span>
+    </div>
+    <div id="health-badge" class="health-badge">Connecting...</div>
+  </header>
+
+  <main>
+
+    <!-- ── Upload Section ── -->
+    <section class="section" id="upload-section">
+      <h1 class="section-title">Upload a Video</h1>
+      <p class="section-sub">Drop any MP4, MOV, or AVI file. Frames will be indexed with CLIP automatically.</p>
+
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept="video/mp4,video/avi,video/mov,video/quicktime" hidden />
+        <div class="upload-icon">🎬</div>
+        <p class="upload-label">Drag & drop your video here</p>
+        <p class="upload-sub">or</p>
+        <button class="btn-primary" id="browse-btn">Browse File</button>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap" id="progress-wrap" style="display:none">
+        <div class="progress-header">
+          <span id="progress-label">Uploading...</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+        <p class="progress-status" id="progress-status">Sending file to server...</p>
+      </div>
+
+      <!-- Indexed Videos -->
+      <div id="indexed-videos" class="indexed-videos" style="display:none">
+        <h3 class="indexed-title">Indexed Videos</h3>
+        <div id="video-chips" class="video-chips"></div>
+      </div>
+    </section>
+
+    <!-- ── Search Section ── -->
+    <section class="section" id="search-section">
+      <h2 class="section-title">Search by Description</h2>
+      <p class="section-sub">Type anything you'd expect to see — CLIP will find the matching moments.</p>
+
+      <div class="search-bar-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="e.g. a dog running, moving car, crowd cheering..."
+          autocomplete="off"
+        />
+        <div class="top-k-wrap">
+          <label for="top-k-select">Results</label>
+          <select id="top-k-select">
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="search-btn">Search</button>
+      </div>
+
+      <!-- Spinner -->
+      <div id="search-spinner" class="spinner-wrap" style="display:none">
+        <div class="spinner"></div>
+        <span>Searching with CLIP...</span>
+      </div>
+    </section>
+
+    <!-- ── Results Section ── -->
+    <section class="section" id="results-section" style="display:none">
+      <div class="results-layout">
+
+        <!-- Left: Video Player -->
+        <div class="player-panel">
+          <div class="player-header">
+            <span class="player-badge">▶ Preview</span>
+            <span id="player-filename" class="player-filename"></span>
+          </div>
+          <video id="video-player" class="video-player" controls>
+            <source id="video-source" src="" type="video/mp4" />
+          </video>
+          <div class="timestamp-display">
+            <span>⏱ Jumped to: </span><span id="current-timestamp">0s</span>
+          </div>
+        </div>
+
+        <!-- Right: Result Cards -->
+        <div class="results-panel">
+          <div class="results-header">
+            <h2 id="results-title">Results</h2>
+            <span id="results-count" class="results-count"></span>
+          </div>
+          <div id="results-grid" class="results-grid"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Built with CLIP · FastAPI · ChromaDB · ⚡ Zero-Shot Search</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

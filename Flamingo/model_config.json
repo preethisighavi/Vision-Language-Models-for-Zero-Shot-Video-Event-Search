@@ -1,0 +1,9 @@
+{
+  "llm_name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "perceiver_latents": 64,
+  "perceiver_depth": 6,
+  "xattn_heads": 8,
+  "xattn_every_n": 2,
+  "clip_dim": 768,
+  "proj_dim": 512
+}

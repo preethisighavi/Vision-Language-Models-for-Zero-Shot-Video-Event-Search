@@ -1,0 +1,9 @@
+{
+    "total_videos": 10000,
+    "total_captions": 17010,
+    "avg_words_per_caption": 224.20099941211052,
+    "pct_under_77_tokens": 5.878894767783657,
+    "most_common_resolution": "320x240",
+    "avg_fps": 27.509921675862017,
+    "avg_duration": 14.81887964051823
+}

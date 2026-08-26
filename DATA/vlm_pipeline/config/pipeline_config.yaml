@@ -1,0 +1,41 @@
+# ─── General ──────────────────────────────────────────────────────────────────
+general:
+  sample_limit: null         # Dictated by Orchestrator file staging
+
+# ─── Paths ────────────────────────────────────────────────────────────────────
+paths:
+  base_dir: "/data"
+  msrvtt_dir: "/data/MSRVTT"
+  msvd_dir: "/data/MSVD"
+  output_dir: "/data/outputs"
+  intermediate_dir: "/data/outputs/intermediate"
+  keyframe_dir: "/data/outputs/intermediate/keyframes"
+
+# ─── Text Normalization ────────────────────────────────────────────────────────
+text:
+  min_word_count: 3          # Drop captions shorter than this
+  max_word_count: 50         # Drop outlier long captions
+  lowercase: true
+  strip_punctuation: false   # Keep punctuation for BLIP
+
+# ─── Quality Filter (CLIP) ────────────────────────────────────────────────────
+quality:
+  clip_model: "openai/clip-vit-base-patch32"
+  outlier_threshold: 0.15    # Drop pairs if max sim across all captions < this
+  batch_size: 64
+  sample_for_audit: null     # null = process all; integer = smoke test mode
+
+# ─── Keyframe Extraction ──────────────────────────────────────────────────────
+keyframes:
+  frames_per_video: 3        # beginning / middle / end
+  output_size: [224, 224]    # Resize to this for CLIP/BLIP compatibility
+  format: "JPEG"
+  quality: 95
+
+# ─── Splits ───────────────────────────────────────────────────────────────────
+splits:
+  msrvtt_val_ratio: 0.50     # 50% of MSR-VTT (non-test) → val (for 2/2 test run)
+  random_seed: 42
+  # MSR-VTT test set: honor official msrvtt_test_1k.json
+  # MSVD: honor official train/val/test files
+

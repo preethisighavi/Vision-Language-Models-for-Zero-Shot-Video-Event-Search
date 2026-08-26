@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSR-VTT Dataset EDA</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header class="header">
+        <h1>MSR-VTT Dataset EDA</h1>
+        <p>Exploratory Data Analysis for Zero-Shot Video Search Engine</p>
+    </header>
+
+    <main class="container">
+        <!-- KPI Metrics -->
+        <div class="kpi-grid" id="kpi-container">
+            <div class="kpi-card">
+                <h3>Total Videos</h3>
+                <h2 id="metric-videos">--</h2>
+            </div>
+            <div class="kpi-card">
+                <h3>Total Captions</h3>
+                <h2 id="metric-captions">--</h2>
+            </div>
+            <div class="kpi-card">
+                <h3>Average Duration</h3>
+                <h2 id="metric-duration">--</h2>
+            </div>
+            <div class="kpi-card">
+                <h3>Average FPS</h3>
+                <h2 id="metric-fps">--</h2>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Visualizations Area -->
+        <div class="viz-section">
+
+            <div class="viz-block">
+                <div class="viz-text">
+                    <h2>Video Category Distribution</h2>
+                    <p><strong>Insight:</strong> The MSR-VTT dataset covers 20 distinct categories. As shown, categories
+                        like "Sports/Action" and "Movie Scenes" dominate the dataset, while "Documentary" or
+                        "Advertisement" are scarce.</p>
+                    <p><strong>Zero-Shot Implication:</strong> Due to the imbalance, the VLM's ability to generalize to
+                        underrepresented categories (e.g., Cooking, Science) will be a strong indicator of true
+                        zero-shot performance without biased fine-tuning.</p>
+                </div>
+                <div class="viz-img">
+                    <img src="plot_category.png" alt="Category Distribution Plot">
+                </div>
+            </div>
+
+            <div class="viz-block reverse">
+                <div class="viz-text">
+                    <h2>Temporal Constraints: Duration & FPS</h2>
+                    <p><strong>Insight:</strong> Videos heavily cluster around the 15-second mark, with strict
+                        boundaries between 10 to 30 seconds. The average framerate approaches 30 FPS.</p>
+                    <p><strong>Zero-Shot Implication:</strong> Extracting every single frame over 15 seconds would
+                        produce ~450 dense tensor embeddings per video, overwhelming basic search architectures. We must
+                        implement a <strong>downsampling strategy</strong> (e.g., 1 frame per second) taking only ~15
+                        features per clip to remain computationally viable.</p>
+                </div>
+                <div class="viz-img">
+                    <img src="plot_duration.png" alt="Duration Plot" style="margin-bottom: 10px;">
+                    <img src="plot_fps.png" alt="FPS Plot">
+                </div>
+            </div>
+
+            <div class="viz-block">
+                <div class="viz-text">
+                    <h2>Spatial Constraints: Resolution</h2>
+                    <p><strong>Insight:</strong> The dataset is highly fragmented spatially. The dominant resolution is
+                        320x240 (a 4:3 SD aspect ratio), but many other widescreen (16:9) permutations exist.</p>
+                    <p><strong>Zero-Shot Implication:</strong> Pretrained Vision Transformers (ViT) within CLIP are
+                        structurally hardcoded to accept square pixel blocks, typically <strong>224x224</strong>. All
+                        frames must be center-cropped or padded strictly to this dimension before feature extraction.
+                    </p>
+                </div>
+                <div class="viz-img">
+                    <img src="plot_resolution.png" alt="Resolution Bar Chart">
+                </div>
+            </div>
+
+            <div class="viz-block reverse">
+                <div class="viz-text">
+                    <h2>Linguistic Constraints: Token Length & Vocabulary</h2>
+                    <p><strong>Insight:</strong> Captions describing the events average around 10 words. Crucially, the
+                        vocabulary is heavily dominated by generic nouns ("man", "woman", "person").</p>
+                    <p><strong>Zero-Shot Implication:</strong> Standard CLIP text encoders enforce a strict
+                        <strong>77-token maximum</strong> sequence length. Captions exceeding this require truncation.
+                        Furthermore, the generic nature of query words means our search system will face challenges
+                        differentiating highly complex or dense semantic scenes.</p>
+                </div>
+                <div class="viz-img">
+                    <img src="plot_top_words.png" alt="Top Words Bar Plot" style="margin-bottom: 10px;">
+                    <img src="plot_sentence_length.png" alt="Sentence Length Distribution">
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

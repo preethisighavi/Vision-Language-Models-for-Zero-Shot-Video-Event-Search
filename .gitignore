@@ -1,0 +1,35 @@
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+
+# Secrets / local env
+.env
+*.env
+
+# Model weights / checkpoints
+output_msvd_clip/
+best.pt
+blip_msvd_finetuned_final/
+Flamingo/best_model-*.pt
+Flamingo/checkpoints/
+Flamingo/old_versions/
+
+# Raw datasets
+DATA/MSVD/
+DATA/MSRVTT/
+DATA/vlm_pipeline/data_local/
+DATA/vlm_pipeline/logs/
+DATA/vlm_pipeline/processed_outputs/
+
+# Prototype generated/data dirs
+Prototype/videos/
+Prototype/chroma_db/
+
+# Archives
+*.zip
