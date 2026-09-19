@@ -2,9 +2,14 @@ import os
 
 class Config:
     # Directories
-    BASE_DIR = '/Users/spartan/Desktop/DATA298A'
-    DATA_DIR = os.path.join(BASE_DIR, 'data')
-    VIDEO_DIR = os.path.join(DATA_DIR, 'TrainValVideo')
+    # Defaults to the repo root (two levels up from this file); override with
+    # the BASE_DIR env var if the project lives somewhere else on your machine.
+    BASE_DIR = os.getenv(
+        "BASE_DIR",
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    )
+    DATA_DIR = os.path.join(BASE_DIR, 'DATA', 'MSRVTT')
+    VIDEO_DIR = os.path.join(DATA_DIR, 'raw_videos')
     OUTPUT_DIR = os.path.join(BASE_DIR, 'pipeline', 'features')
     
     # Model Configurations
