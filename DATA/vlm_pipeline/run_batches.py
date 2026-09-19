@@ -7,7 +7,10 @@ from datetime import datetime
 
 # --- Configuration ---
 BATCH_SIZE = 10
-BASE_DIR = "/Users/spartan/Library/CloudStorage/GoogleDrive-vummidichettyabhinav@gmail.com/Shared drives/DATA 298A/DATA"
+BASE_DIR = os.getenv(
+    "BASE_DIR",
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 
 MSRVTT_SRC = os.path.join(BASE_DIR, "MSRVTT", "raw_videos")
 MSVD_SRC = os.path.join(BASE_DIR, "MSVD", "raw_videos")
