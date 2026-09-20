@@ -1,0 +1,13 @@
+# Core dependencies for pipeline/, Flamingo/, and the top-level notebooks.
+# For the Prototype web app specifically, see Prototype/requirements.txt.
+# For the Airflow data pipeline specifically, see DATA/vlm_pipeline/requirements.txt.
+
+numpy
+pandas
+opencv-python
+Pillow
+torch
+transformers
+tqdm
+pinecone-client
+scikit-learn
