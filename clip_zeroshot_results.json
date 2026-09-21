@@ -1,0 +1,15 @@
+{
+  "R@1": 0.33090804307891797,
+  "R@5": 0.59262327558261,
+  "R@10": 0.6970068076216547,
+  "MRR": 0.452596668310793,
+  "MeanRank": 23.68800201707308,
+  "MedianRank": 3.0,
+  "Top1Accuracy": 0.33090804307891797,
+  "Top5Accuracy": 0.59262327558261,
+  "avg_query_latency_sec": 0.008983800619302821,
+  "model_type": "zero_shot",
+  "model_name": "openai/clip-vit-base-patch32",
+  "num_queries": 27763,
+  "num_videos": 670
+}
