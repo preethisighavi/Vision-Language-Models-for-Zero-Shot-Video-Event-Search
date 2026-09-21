@@ -1,0 +1,26 @@
+{
+  "model_type": "fine_tuned",
+  "checkpoint": "/content/drive/Shareddrives/DATA 298A/Models/CLIP/output_msvd_clip/best.pt",
+  "msvd": {
+    "R@1": 0.36638691784029104,
+    "R@5": 0.6792493606598711,
+    "R@10": 0.7866945214854303,
+    "MRR": 0.5066886064597899,
+    "MeanRank": 14.134351474984692,
+    "MedianRank": 2.0,
+    "Top1Accuracy": 0.36638691784029104,
+    "Top5Accuracy": 0.6792493606598711,
+    "avg_query_latency_sec": 0.03653409654261232
+  },
+  "msrvtt": {
+    "R@1": 0.34,
+    "R@5": 0.584,
+    "R@10": 0.689,
+    "MRR": 0.4560530065702406,
+    "MeanRank": 27.761,
+    "MedianRank": 3.0,
+    "Top1Accuracy": 0.34,
+    "Top5Accuracy": 0.584,
+    "avg_query_latency_sec": 1.0233718147277833
+  }
+}
