@@ -1,0 +1,37 @@
+[
+  {
+    "video_id": "fr9H1WLcF1A_256_261",
+    "query": "two young men are playing table tennis",
+    "predicted_timestamp_sec": 4.971633333333333,
+    "total_duration_sec": 5.005,
+    "similarity_score": 0.325438916683197
+  },
+  {
+    "video_id": "wFPmKChNrhU_3_11",
+    "query": "a man rides his horse in the dessert",
+    "predicted_timestamp_sec": 7.974633333333333,
+    "total_duration_sec": 8.008000000000001,
+    "similarity_score": 0.31791529059410095
+  },
+  {
+    "video_id": "o4OsYxsNGMI_77_82",
+    "query": "paper is being cut with scissors",
+    "predicted_timestamp_sec": 0.0,
+    "total_duration_sec": 5.04,
+    "similarity_score": 0.29146650433540344
+  },
+  {
+    "video_id": "rw9h_574HxE_59_66",
+    "query": "a couple walks through the jungle",
+    "predicted_timestamp_sec": 0.0,
+    "total_duration_sec": 7.04,
+    "similarity_score": 0.2860972285270691
+  },
+  {
+    "video_id": "jDFn-1lXJ98_71_80",
+    "query": "a dog runs and hides behind a tree",
+    "predicted_timestamp_sec": 5.1051,
+    "total_duration_sec": 9.009,
+    "similarity_score": 0.26931366324424744
+  }
+]
