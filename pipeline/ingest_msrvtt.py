@@ -12,8 +12,8 @@ OUTPUT_DIR = "data/msrvtt_shards"
 SHARD_SIZE = 1000
 
 def init_dir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+    # Fix: Use exist_ok=True to prevent crashes if the directory already exists.
+    os.makedirs(path, exist_ok=True)
 
 def process_video_bytes(video_bytes):
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=True) as temp_video:
@@ -28,6 +28,12 @@ def process_video_bytes(video_bytes):
         if fps > 0:
             # Extract 1 frame per second
             duration = int(total_frames / fps)
+            
+            # Fix: If the video is shorter than 1 second, duration becomes 0.
+            # We force extraction of at least 1 frame (the middle one) so we don't silently drop data.
+            if duration == 0 and total_frames > 0:
+                duration = 1
+                
             for i in range(duration):
                 frame_idx = int(i * fps + fps / 2)
                 cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)

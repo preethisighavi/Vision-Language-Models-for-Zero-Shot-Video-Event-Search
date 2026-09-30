@@ -66,7 +66,9 @@ def analyze_text():
     print("--- Text Data Statistics (MSR-VTT) ---")
     try:
         dataset = wds.WebDataset("data/msrvtt_shards/msrvtt-test-0000.tar").decode()
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        # Fix: Using openai/clip-vit-base-patch32 tokenizer instead of BERT
+        # to ensure EDA accurately reflects the BPE tokenization limits that the CLIP model will enforce.
+        tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch32")
         
         raw_lengths = []
         prep_lengths = []
