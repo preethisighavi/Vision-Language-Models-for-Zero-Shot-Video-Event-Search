@@ -15,7 +15,7 @@ downloaded videos, controlled by --msrvtt-sample / --msvd-sample.
 Usage:
     pip install -r EDA/dashboard/requirements.txt
     python EDA/dashboard/build_data.py --check-youtube
-    open EDA/dashboard/index.html
+    open EDA/dashboard/index.html     # interactive; RESULTS.md has the same numbers
 """
 
 from __future__ import annotations
@@ -403,6 +403,155 @@ def build_msvd(args, tokenizer, stop_words) -> dict:
     return out
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Markdown report
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _n(x, d=0):
+    return f"{x:,.{d}f}"
+
+
+def _table(headers, rows):
+    lines = ["| " + " | ".join(headers) + " |", "|" + "|".join("---" for _ in headers) + "|"]
+    lines += ["| " + " | ".join(str(c) for c in r) + " |" for r in rows]
+    return "\n".join(lines)
+
+
+def render_markdown(payload: dict) -> str:
+    s = payload["settings"]
+    ds = payload["datasets"]
+    clip_mean = payload["clip_norm"]["mean"]
+    out = [
+        "# EDA Results: MSR-VTT and MSVD",
+        "",
+        f"Generated {payload['generated_at']} by `EDA/dashboard/build_data.py`. Do not edit by hand; "
+        "re-run the script to refresh. Open `index.html` for the interactive version.",
+        "",
+        f"Caption statistics use every caption. Video properties are measured on a random sample "
+        f"(seed {s['seed']}) of {_n(s['msrvtt_sample'])} MSR-VTT and {_n(s['msvd_sample'])} MSVD videos.",
+        "",
+        "![MSR-VTT view](screenshots/msrvtt.png)",
+        "",
+        "## Overview",
+        "",
+    ]
+
+    def row(label, f):
+        return [label] + [f(d) for d in ds.values()]
+
+    def yt(d):
+        y = d.get("youtube")
+        return f"{100 * y['clips_available'] / y['clips_total']:.1f}%" if y else "not checked"
+
+    def top_res(d):
+        res, n = next(iter(d["video"]["resolutions"].items()))
+        return f"{res} ({100 * n / d['video']['probed']:.0f}%)"
+
+    out.append(_table(["Metric"] + [d["name"] for d in ds.values()], [
+        row("Videos", lambda d: _n(d["videos"])),
+        row("Source YouTube videos", lambda d: _n(d["source_videos"])),
+        row("Captions", lambda d: _n(d["captions"]["total"])),
+        row("Captions per video (mean / min / max)", lambda d: "{} / {} / {}".format(
+            _n(d["captions"]["per_video"]["mean"], 1), _n(d["captions"]["per_video"]["min"]),
+            _n(d["captions"]["per_video"]["max"]))),
+        row("Duration mean / median (s)", lambda d: f"{d['annotated_duration']['mean']:.1f} / {d['annotated_duration']['median']:.1f}"),
+        row("Duration range (s)", lambda d: f"{d['annotated_duration']['min']:.1f} – {d['annotated_duration']['max']:.1f}"),
+        row("FPS mean (sample)", lambda d: f"{d['video']['fps']['mean']:.1f}"),
+        row("Distinct resolutions (sample)", lambda d: _n(d["video"]["n_resolutions"])),
+        row("Top resolution (sample)", top_res),
+        row("Words per caption mean / max", lambda d: f"{d['captions']['words']['mean']:.1f} / {_n(d['captions']['words']['max'])}"),
+        row("CLIP tokens p95 / max", lambda d: f"{_n(d['captions']['clip_tokens']['p95'])} / {_n(d['captions']['clip_tokens']['max'])}"),
+        row("Captions > 77 CLIP tokens", lambda d: f"{d['captions']['pct_over_77_tokens']:.2f}%"),
+        row("Vocabulary (content words)", lambda d: _n(d["captions"]["vocab_size"])),
+        row("Captions kept by pipeline text rules", lambda d: f"{d['captions']['pipeline_filters']['retained_pct']:.1f}%"),
+        row("Clips still on YouTube", yt),
+    ]))
+
+    for d in ds.values():
+        c, v, f = d["captions"], d["video"], d["captions"]["pipeline_filters"]
+        out += ["", f"## {d['name']}", "", f"Source: <{d['source']}>", "", "### Splits", ""]
+        out.append(_table(["Scheme", "Split", "Videos", "Captions"],
+                          [[x["scheme"], x["split"], _n(x["videos"]), _n(x["captions"])] for x in d["splits"]]))
+        if d["categories"]:
+            cat = d["categories"]
+            out += ["", "### Categories (official split)", ""]
+            out.append(_table(["Category", "Train", "Val", "Test", "Total"], [
+                [n, _n(tr), _n(va), _n(te), _n(tr + va + te)]
+                for n, tr, va, te in zip(cat["names"], cat["train"], cat["val"], cat["test"])]))
+        out += ["", "### Video properties (sample)", ""]
+        out.append(_table(["Property", "Value"], [
+            ["Videos probed", f"{_n(v['probed'])} of {_n(v['requested'])}"],
+            ["FPS mean / median / min / max", f"{v['fps']['mean']:.1f} / {v['fps']['median']:.1f} / {v['fps']['min']:.1f} / {v['fps']['max']:.1f}"],
+            ["Measured duration median (s)", f"{v['duration']['median']:.1f}"],
+            ["Native frames per video (median)", _n(v["frames_per_video_native"]["median"])],
+            ["Frames per video at 1 fps (median)", _n(v["frames_per_video_at_1fps"]["median"])],
+            ["Resolutions", ", ".join(f"{k} ({n})" for k, n in list(v["resolutions"].items())[:6])],
+            ["Aspect ratios", ", ".join(f"{k} ({100 * n / v['probed']:.0f}%)" for k, n in v["aspect_ratios"].items())],
+            ["Codecs", ", ".join(f"{k} ({n})" for k, n in v["codecs"].items())],
+            ["File size median (MB)", f"{v['file_size_mb']['median']:.2f}"],
+            ["RGB mean (0–1)", ", ".join(f"{x:.3f}" for x in v["rgb_mean"])],
+            ["RGB std (0–1)", ", ".join(f"{x:.3f}" for x in v["rgb_std"])],
+            ["CLIP normalization mean", ", ".join(f"{x:.3f}" for x in clip_mean)],
+        ]))
+        out += ["", "### Captions", ""]
+        out.append(_table(["Statistic", "Mean", "Median", "p95", "Max"], [
+            ["Words per caption", f"{c['words']['mean']:.1f}", _n(c["words"]["median"]), _n(c["words"]["p95"]), _n(c["words"]["max"])],
+            ["CLIP tokens per caption", f"{c['clip_tokens']['mean']:.1f}", _n(c["clip_tokens"]["median"]), _n(c["clip_tokens"]["p95"]), _n(c["clip_tokens"]["max"])],
+            ["Captions per video", f"{c['per_video']['mean']:.1f}", _n(c["per_video"]["median"]), _n(c["per_video"]["p95"]), _n(c["per_video"]["max"])],
+        ]))
+        out += ["", "Top 15 content words: " + ", ".join(f"{w} ({_n(n)})" for w, n in c["top_words"][:15]) + ".",
+                "", "Top 10 bigrams: " + ", ".join(f"{w} ({_n(n)})" for w, n in c["top_bigrams"][:10]) + "."]
+        out += ["", "### Pipeline text filters", "",
+                f"Applying the rules in `DATA/vlm_pipeline/tasks/text_normalize.py` (min {s['min_words']} words, "
+                f"max {s['max_words']} words, no all-stopword captions, then dedup):", ""]
+        out.append(_table(["Step", "Captions removed"], [
+            [f"Fewer than {s['min_words']} words", _n(f["too_short"])],
+            [f"More than {s['max_words']} words", _n(f["too_long"])],
+            ["All stopwords", _n(f["all_stopwords"])],
+            ["Duplicate within the same video", _n(f["intra_video_duplicates"])],
+            ["Duplicate across videos (global dedup)", _n(f["cross_video_duplicates"])],
+            ["**Retained**", f"**{_n(f['retained'])} ({f['retained_pct']:.1f}%)**"],
+        ]))
+        out += ["", "Most repeated captions: " + "; ".join(
+            f"\"{k}\" ({_n(n)})" for k, n in list(c["examples"]["most_repeated"].items())[:6]) + "."]
+        if d.get("youtube"):
+            y = d["youtube"]
+            out += ["", f"### YouTube availability (checked {y['checked_at']})", ""]
+            out.append(_table(["Split", "Available", "Total", "Share"], [
+                [k, _n(x["available"]), _n(x["total"]), f"{100 * x['available'] / x['total']:.1f}%"]
+                for k, x in y["by_split"].items()]))
+            codes = y["status_counts"]
+            out += ["", f"Unique source videos: {_n(y['unique_sources'])}. oEmbed status: "
+                    f"live {_n(codes.get('200', 0))}, embedding disabled {_n(codes.get('401', 0))}, "
+                    f"private/removed {_n(codes.get('403', 0))}, deleted {_n(codes.get('404', 0))}."]
+
+    m, v = ds["msrvtt"], ds["msvd"]
+    mf, vf = m["captions"]["pipeline_filters"], v["captions"]["pipeline_filters"]
+    top_m = next(iter(m["video"]["resolutions"]))
+    out += [
+        "", "## What this means for the pipeline", "",
+        f"- **Caption length is not a constraint.** {m['captions']['pct_over_77_tokens']:.2f}% of MSR-VTT and "
+        f"{v['captions']['pct_over_77_tokens']:.2f}% of MSVD captions exceed CLIP's 77 tokens "
+        f"(max {_n(m['captions']['clip_tokens']['max'])} and {_n(v['captions']['clip_tokens']['max'])}).",
+        f"- **The HF MSR-VTT copy is re-encoded** to {top_m} at {m['video']['fps']['mean']:.0f} fps in the sample, "
+        "so frames cannot be sampled faster than that. MSVD keeps its original, varied resolutions "
+        f"({_n(v['video']['n_resolutions'])} distinct in the sample) and ~{v['video']['fps']['median']:.0f} fps.",
+        "- **Resize the short side to 224 and center-crop** instead of squashing frames to 224×224; most clips are 4:3.",
+        "- **Use CLIP's normalization constants.** Dataset pixel means are below CLIP's "
+        f"(MSR-VTT {', '.join(f'{x:.3f}' for x in m['video']['rgb_mean'])} vs CLIP {', '.join(f'{x:.3f}' for x in clip_mean)}).",
+        f"- **Global dedup drops valid captions:** {_n(mf['cross_video_duplicates'])} MSR-VTT and "
+        f"{_n(vf['cross_video_duplicates'])} MSVD captions are removed only because another video has the same text. "
+        "Consider keeping within-video dedup only.",
+        f"- **MSVD caption counts vary** from {_n(v['captions']['per_video']['min'])} to "
+        f"{_n(v['captions']['per_video']['max'])} per video; sample a fixed number per video per epoch.",
+    ]
+    if m.get("youtube") and v.get("youtube"):
+        out.append(f"- **Use the Hugging Face copies, not YouTube URLs:** only {yt(m)} of MSR-VTT and {yt(v)} of MSVD "
+                   "clips are still online.")
+    out += ["", "## Screenshots", "", "![MSVD view](screenshots/msvd.png)", "", "![Compare view](screenshots/compare.png)", ""]
+    return "\n".join(out)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--cache", default=os.path.expanduser("~/.cache/vlm_eda"), help="download cache")
@@ -438,6 +587,11 @@ def main():
         json.dump(payload, f, separators=(",", ":"), default=lambda o: o.item() if hasattr(o, "item") else str(o))
         f.write(";\n")
     print(f"Wrote {args.out} ({os.path.getsize(args.out) / 1024:.0f} KB)")
+
+    md_path = os.path.join(os.path.dirname(args.out), "RESULTS.md")
+    with open(md_path, "w") as f:
+        f.write(render_markdown(json.loads(json.dumps(payload, default=lambda o: o.item() if hasattr(o, "item") else str(o)))))
+    print(f"Wrote {md_path}")
 
 
 if __name__ == "__main__":
