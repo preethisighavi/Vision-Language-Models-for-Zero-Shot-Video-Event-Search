@@ -44,8 +44,9 @@ def _split_msrvtt(df_vtt: pd.DataFrame, val_ratio: float, seed: int) -> tuple[pd
     df_rest = df_vtt[df_vtt["split_hint"] != "test"]
 
     # Video-level split (to prevent leakage)
+    cols_to_keep = ["video_id", "category"] if "category" in df_rest.columns else ["video_id"]
     vid_meta = (
-        df_rest[["video_id", "category"]]
+        df_rest[cols_to_keep]
         .drop_duplicates("video_id")
         .reset_index(drop=True)
     )
@@ -59,12 +60,17 @@ def _split_msrvtt(df_vtt: pd.DataFrame, val_ratio: float, seed: int) -> tuple[pd
         df_test["split"] = "test"
         return df_train, df_val, df_test
 
-    # Stratify by category; fall back to random if a category has <2 members
+    # Stratify by category; fall back to random if a category has <2 members or is missing
+    stratify_col = vid_meta["category"] if "category" in vid_meta.columns else None
+    
     try:
+        if stratify_col is None:
+            raise ValueError("No category column for stratification")
+            
         train_vids, val_vids = train_test_split(
             vid_meta["video_id"],
             test_size=val_ratio,
-            stratify=vid_meta["category"],
+            stratify=stratify_col,
             random_state=seed,
         )
     except ValueError:
