@@ -63,7 +63,21 @@ def _extract_frames(
 
         for frame in container.decode(container.streams.video[0]):
             if frame_idx in indices:
-                img = frame.to_image().convert("RGB").resize(size, Image.LANCZOS)
+                img = frame.to_image().convert("RGB")
+                
+                # Fix: Maintain aspect ratio by resizing shortest edge, then center cropping
+                width, height = img.size
+                short_edge = min(width, height)
+                if short_edge > 0:
+                    scale = size[0] / short_edge
+                    new_w, new_h = int(width * scale), int(height * scale)
+                    img = img.resize((new_w, new_h), Image.LANCZOS)
+                    
+                    left = (new_w - size[0]) / 2
+                    top = (new_h - size[1]) / 2
+                    right = (new_w + size[0]) / 2
+                    bottom = (new_h + size[1]) / 2
+                    img = img.crop((left, top, right, bottom))
                 fname = f"{video_id}_frame_{len(saved_paths)}.jpg"
                 out_path = os.path.join(output_dir, fname)
                 img.save(out_path, format="JPEG", quality=95)
