@@ -26,3 +26,10 @@ CLIP,fine_tuned,MSRVTT,MedianRank,3.0,clip_finetuned_results.json
 CLIP,fine_tuned,MSRVTT,Top1Accuracy,0.34,clip_finetuned_results.json
 CLIP,fine_tuned,MSRVTT,Top5Accuracy,0.584,clip_finetuned_results.json
 CLIP,fine_tuned,MSRVTT,avg_query_latency_sec,1.0233718147277833,clip_finetuned_results.json
+CLIP,fine_tuned_v2,MSVD,R@1,0.3648380938659367,clip_finetuned_v2_results.json
+CLIP,fine_tuned_v2,MSVD,R@5,0.6646255808089904,clip_finetuned_v2_results.json
+CLIP,fine_tuned_v2,MSVD,R@10,0.7740157763930411,clip_finetuned_v2_results.json
+CLIP,fine_tuned_v2,MSVD,MRR,0.5018587867848034,clip_finetuned_v2_results.json
+CLIP,fine_tuned_v2,MSVD,MeanRank,15.249504736519828,clip_finetuned_v2_results.json
+CLIP,fine_tuned_v2,MSVD,MedianRank,2.0,clip_finetuned_v2_results.json
+CLIP,fine_tuned_v2,MSVD,avg_query_latency_sec,0.01614055593011273,clip_finetuned_v2_results.json
