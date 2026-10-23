@@ -1,0 +1,13 @@
+default: mock
+models:
+  - id: mock
+    name: Mock model
+    description: Deterministic fake results for UI development
+    class: app.models.mock.MockAdapter
+    params: { embedding_dim: 512, noise: 0.25 }
+
+  - id: mock-baseline
+    name: Mock baseline
+    description: A weaker one-stage mock, so Compare has two columns
+    class: app.models.mock.MockAdapter
+    params: { embedding_dim: 512, noise: 0.9, supports_rerank: false }

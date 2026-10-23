@@ -1,0 +1,84 @@
+:root {
+  /* Surfaces */
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-dark: #1d1d1f;
+  --video: #1c1c1e;
+  --fill: #e8e8ed;
+  --track: #d2d2d7;
+  --hairline: rgba(0, 0, 0, 0.08);
+  --hairline-soft: rgba(0, 0, 0, 0.06);
+  --nav-bg: rgba(251, 251, 253, 0.8);
+
+  /* Text */
+  --text: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-nav: #424245;
+  --text-on-dark: #f5f5f7;
+  --text-on-dark-secondary: #a1a1a6;
+
+  /* Accent (the matched moment + primary actions) */
+  --accent: #0a66e0;
+  --accent-text: #0a58c2;
+  --accent-hover: #0a4aa3;
+  --accent-tint: rgba(10, 102, 224, 0.1);
+  --accent-ring: rgba(10, 102, 224, 0.18);
+  --accent-secondary-span: rgba(10, 102, 224, 0.35);
+  --link-on-dark: #5ea8ff;
+
+  /* Status */
+  --switch-on: #34c759;
+
+  /* Radii */
+  --r-pill: 999px;
+  --r-card-lg: 28px;
+  --r-card: 22px;
+  --r-video: 18px;
+  --r-thumb: 14px;
+  --r-thumb-sm: 10px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08);
+  --shadow-segment: 0 1px 3px rgba(0, 0, 0, 0.12);
+
+  --skeleton-highlight: #f0f0f3;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-dark: #f5f5f7;
+  --video: #000000;
+  --fill: #2c2c2e;
+  --track: #3a3a3c;
+  --hairline: rgba(255, 255, 255, 0.12);
+  --hairline-soft: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(22, 22, 23, 0.8);
+
+  --text: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-nav: #d2d2d7;
+  --text-on-dark: #1d1d1f;
+  --text-on-dark-secondary: #6e6e73;
+
+  --accent: #0a66e0;
+  --accent-text: #6eb6ff;
+  --accent-hover: #1a6fe6;
+  --accent-tint: rgba(110, 182, 255, 0.16);
+  --accent-ring: rgba(110, 182, 255, 0.28);
+  --accent-secondary-span: rgba(110, 182, 255, 0.4);
+  --link-on-dark: #0a58c2;
+
+  --switch-on: #30d158;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-segment: 0 1px 3px rgba(0, 0, 0, 0.6);
+
+  --skeleton-highlight: #3a3a3c;
+  color-scheme: dark;
+}

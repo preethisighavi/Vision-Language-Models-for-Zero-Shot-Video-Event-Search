@@ -1,0 +1,33 @@
+default: mock
+models:
+  - id: mock
+    name: Mock model
+    description: Deterministic fake results for UI development
+    class: app.models.mock.MockAdapter
+    params: { embedding_dim: 512, noise: 0.25 }
+
+  - id: mock-baseline
+    name: Mock baseline
+    description: A weaker one-stage mock, so Compare has two columns
+    class: app.models.mock.MockAdapter
+    params: { embedding_dim: 512, noise: 0.9, supports_rerank: false }
+
+  - id: clip-b32
+    name: CLIP ViT-B/32
+    description: Pretrained CLIP. One stage, with moment localization.
+    class: app.models.clip_stub.ClipAdapter
+    params: { model_name: openai/clip-vit-base-patch32, frames_per_window: 8, device: cpu }
+
+  - id: clip-b32-ft
+    name: CLIP ViT-B/32 (fine-tuned)
+    description: Fine-tuned baseline, one stage. Turn on when the checkpoint file is in place.
+    class: app.models.clip_stub.ClipAdapter
+    enabled: false
+    params: { checkpoint: "${CHECKPOINT_DIR}/clip_b32_ft.pt", frames_per_window: 8, device: cpu }
+
+  - id: spartan-v1
+    name: Spartan v1
+    description: Two stages, with re-rank and moments
+    class: app.models.spartan_stub.SpartanAdapter
+    enabled: false
+    params: { checkpoint: "${CHECKPOINT_DIR}/spartan_v1.pt", frames_per_window: 12, rerank_k: 20 }

@@ -1,0 +1,44 @@
+x-backend: &backend
+  build: ./backend
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    DATA_DIR: /app/data
+    DATABASE_URL: sqlite:////app/data/spartan.db
+    REDIS_URL: redis://redis:6379/0
+    RESULTS_CSV: /results/model_results.csv
+    CHECKPOINT_DIR: /app/checkpoints
+  volumes:
+    - ./data:/app/data
+    - ./checkpoints:/app/checkpoints
+    - ../results:/results:ro
+  depends_on:
+    - redis
+
+services:
+  api:
+    <<: *backend
+    ports:
+      - "8000:8000"
+
+  worker:
+    <<: *backend
+    command: ["rq", "worker", "spartan", "--url", "redis://redis:6379/0"]
+    healthcheck:
+      disable: true
+
+  redis:
+    image: redis:7-alpine
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    environment:
+      VITE_API_BASE: ${VITE_API_BASE:-http://localhost:8000/api/v1}
+      API_PROXY_TARGET: http://api:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
