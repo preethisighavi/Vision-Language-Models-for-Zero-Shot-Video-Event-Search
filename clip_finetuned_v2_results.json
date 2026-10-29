@@ -1,0 +1,17 @@
+{
+  "model": "CLIP",
+  "variant": "fine_tuned_v2",
+  "dataset": "MSVD",
+  "checkpoint": "/content/drive/Shareddrives/DATA 298A/Models/CLIP/output_msvd_clip_v2/best.pt",
+  "training_epoch": 1,
+  "best_val_loss": 2.7895182459936017,
+  "metrics": {
+    "R@1": 0.3648380938659367,
+    "R@5": 0.6646255808089904,
+    "R@10": 0.7740157763930411,
+    "MRR": 0.5018587867848034,
+    "MeanRank": 15.249504736519828,
+    "MedianRank": 2.0,
+    "avg_query_latency_sec": 0.01614055593011273
+  }
+}
