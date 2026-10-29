@@ -1,14 +1,14 @@
-# InternVideo2-CLIP (Fine-Tuned)
+# InternVL (Fine-Tuned)
 
 ## Overview
 
-This repository contains the fine-tuned **InternVideo2-CLIP** model for zero-shot text-to-video retrieval and search, along with its evaluation pipeline, benchmark results on MSR-VTT and MSVD, tokenizer assets, and fine-tuning artifacts.
+This repository contains the fine-tuned **InternVL** model for zero-shot text-to-video retrieval and search, along with its evaluation pipeline, benchmark results on MSR-VTT and MSVD, tokenizer assets, and fine-tuning artifacts.
 
 ---
 
 ## Model Architecture and Fine-Tuning
 
-InternVideo2-CLIP is a high-capacity vision-language retrieval model:
+InternVL is a high-capacity vision-language retrieval model:
 - **Vision Tower:** 24-layer Vision Transformer (ViT) with 14×14 spatial patch projection, hidden width of 1,024, and 16 attention heads. Processes 8 uniformly sampled video frames at 224×224 resolution.
 - **Text Tower:** Multimodal text transformer mapping natural-language queries into a shared 512-dimensional embedding space.
 - **Fine-Tuning Methodology:** Fine-tuned using cross-modal contrastive learning (Symmetric InfoNCE) with parameter-efficient Low-Rank Adaptation (LoRA) and representation preservation regularization, optimizing feature alignment while preserving generalization.

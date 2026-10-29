@@ -1,18 +1,18 @@
-# InternVideo2-CLIP Fine-Tuned: MSR-VTT and MSVD Evaluation
+# InternVL Fine-Tuned: MSR-VTT and MSVD Evaluation
 
 **Technical Report**
 
 ## Abstract
 
-This report presents the architecture, fine-tuning methodology, and benchmark evaluation results for the fine-tuned **InternVideo2-CLIP** model on two standard video-text retrieval benchmarks: MSR-VTT (1,000 test video-caption queries) and MSVD (670 test queries). Under the full text-to-video retrieval protocol, the fine-tuned model achieves a Recall@1 of **42.00%**, Recall@5 of **65.80%**, and MRR of **52.95%** on MSR-VTT, alongside a Recall@1 of **65.82%**, Recall@5 of **91.04%**, and MRR of **76.69%** on MSVD.
+This report presents the architecture, fine-tuning methodology, and benchmark evaluation results for the fine-tuned **InternVL** model on two standard video-text retrieval benchmarks: MSR-VTT (1,000 test video-caption queries) and MSVD (670 test queries). Under the full text-to-video retrieval protocol, the fine-tuned model achieves a Recall@1 of **42.00%**, Recall@5 of **65.80%**, and MRR of **52.95%** on MSR-VTT, alongside a Recall@1 of **65.82%**, Recall@5 of **91.04%**, and MRR of **76.69%** on MSVD.
 
-**Index Terms—** InternVideo2-CLIP, video-text retrieval, contrastive learning, MSVD, MSR-VTT, LoRA.
+**Index Terms—** InternVL, video-text retrieval, contrastive learning, MSVD, MSR-VTT, LoRA.
 
 ---
 
 ## I. Model Architecture
 
-The model builds upon the InternVideo2-CLIP vision-language dual-encoder architecture:
+The model builds upon the InternVL vision-language dual-encoder architecture:
 1. **Vision Transformer (ViT):** The visual backbone processes 8 uniformly sampled video frames at 224×224 resolution using 14×14 patch projection. It consists of 24 transformer blocks with hidden width 1,024 and 16 attention heads.
 2. **Text Tower:** Encodes natural-language queries up to 77 tokens, mapped into a joint 512-dimensional embedding space.
 3. **Cross-Modal Alignment:** Both video and text embeddings are L2-normalized; cosine similarity scores measure cross-modal alignment between queries and videos.
@@ -46,9 +46,9 @@ The evaluation results on MSR-VTT and MSVD are summarized below:
 | Dataset | Evaluation State | R@1 | R@5 | R@10 | MRR | Median Rank | Mean Rank | Queries |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | **MSR-VTT** | Baseline | 41.90% | 65.70% | 75.90% | 52.87% | 2.0 | — | 1,000 |
-| **MSR-VTT** | **InternVideo2-CLIP Fine-Tuned** | **42.00%** | **65.80%** | **75.30%** | **52.95%** | **2.0** | 22.30 | 1,000 |
+| **MSR-VTT** | **InternVL Fine-Tuned** | **42.00%** | **65.80%** | **75.30%** | **52.95%** | **2.0** | 22.30 | 1,000 |
 | **MSVD** | Baseline | 65.82% | 91.04% | 95.52% | 76.72% | 1.0 | — | 670 |
-| **MSVD** | **InternVideo2-CLIP Fine-Tuned** | **65.82%** | **91.04%** | **95.67%** | **76.69%** | **1.0** | 3.02 | 670 |
+| **MSVD** | **InternVL Fine-Tuned** | **65.82%** | **91.04%** | **95.67%** | **76.69%** | **1.0** | 3.02 | 670 |
 
 ---
 

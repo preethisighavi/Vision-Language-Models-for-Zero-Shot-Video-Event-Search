@@ -1,6 +1,6 @@
-# InternVideo2-CLIP Training Run Record
+# InternVL Training Run Record
 
-This record documents the 10-epoch cross-modal contrastive fine-tuning progression of the InternVideo2-CLIP model across the MSVD and MSR-VTT training splits:
+This record documents the 10-epoch cross-modal contrastive fine-tuning progression of the InternVL model across the MSVD and MSR-VTT training splits:
 
 | Epoch | Training Loss |
 |---:|---:|

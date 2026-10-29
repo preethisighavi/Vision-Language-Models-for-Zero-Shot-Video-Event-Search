@@ -25,13 +25,9 @@ SpartanVLM/*.pth
 SpartanVLM/*.pth.tar
 SpartanVLM/runs/
 
-# InternVideo2-CLIP — ONNX models and training artifacts
-InternVideo2_CLIP/checkpoints/*.onnx
-InternVideo2_CLIP/lora_adapter/
-
-# InternVL2 — local prototype weights
-InternVL2/*.pth
-InternVL2/training_logs.txt
+# InternVL — ONNX models and training artifacts
+InternVL/checkpoints/*.onnx
+InternVL/lora_adapter/
 
 # Raw datasets
 DATA/MSVD/
