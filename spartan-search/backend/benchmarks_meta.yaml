@@ -1,0 +1,9 @@
+# Fills in `protocol` and `notes` for rows in results/model_results.csv,
+# which does not have those columns yet. First matching entry wins.
+rows:
+  - match: { model: CLIP, dataset: MSVD }
+    protocol: "Test split, all 27,763 captions as queries"
+    notes: "8 frames per video, mean-pooled"
+  - match: { model: CLIP, dataset: MSRVTT }
+    protocol: "1k-A test set, one caption per video"
+    notes: "Fine-tuned on MSVD only, so this is cross-dataset transfer"
