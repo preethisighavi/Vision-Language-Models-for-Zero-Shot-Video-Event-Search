@@ -1,0 +1,47 @@
+# TAO video_clip model block for this release.
+# model.safetensors (LoRA merged): build VideoCLIPPlModel with this config as-is (peft disabled) and load_state_dict(strict=True).
+# model.pth (LoRA adapters unmerged, Lightning checkpoint): set peft.enabled: true and peft.vision.enabled: true, then
+#   VideoCLIPPlModel.load_from_checkpoint('model.pth', experiment_spec=cfg).
+# model.text_encoder = Apple MobileCLIP-B-LT weights (mobileclip_blt.pt); base vision/alignment weights resolve from
+# model.internvideo2clip_hf_id through the Hugging Face cache.
+model:
+  type: internvideo2-clip-l14
+  adaptor_name: null
+  freeze_vision_encoder: true
+  freeze_text_encoder: true
+  image_size: 224
+  init_logit_scale: 4.605170185988092
+  init_logit_bias: 0.0
+  canonicalize_text: false
+  pretrained_ckpt: null
+  internvideo2clip_hf_id: OpenGVLab/InternVideo2_distillation_models
+  vision_encoder: null
+  text_encoder: /models/mobileclip_blt.pt
+  clip_head: null
+  num_frames: 8
+  use_flash_attn: false
+  use_fused_rmsnorm: false
+  use_fused_mlp: false
+peft:
+  enabled: false
+  method: lora
+  vision:
+    enabled: false
+    target_modules:
+    - qkv
+    - proj
+    num_last_blocks: 12
+    rank: 8
+    alpha: 16
+    dropout: 0.05
+  text:
+    enabled: false
+    target_modules:
+    - qkv_proj
+    - out_proj
+    num_last_blocks: 3
+    rank: 8
+    alpha: 16
+    dropout: 0.05
+regularization:
+  enabled: false

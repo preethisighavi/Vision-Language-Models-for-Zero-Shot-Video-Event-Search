@@ -1,0 +1,21 @@
+{
+  "model": "SpartanVLM",
+  "architecture": "SpartanVLM SpaceTimeTransformer + DistilBERT dual encoder",
+  "dataset": "msvd",
+  "checkpoint": "Spartan_VRLM.pth.tar",
+  "checkpoint_sha256": "39a7ca84c1a7976d805d5eebd59e56326003d6d8098cff20c4bc92b7dad146da",
+  "checkpoint_provenance": "SpartanVLM trained checkpoint (4-frame SpaceTimeTransformer + DistilBERT at epoch 6)",
+  "protocol": "text-to-video retrieval; one caption per video",
+  "caption_selection": "first non-empty caption per video for datasets with multiple captions",
+  "frames_per_video": 4,
+  "input_resolution": 224,
+  "metrics": {
+    "R@1": 38.656716417910445,
+    "R@5": 69.40298507462687,
+    "R@10": 79.8507462686567,
+    "MRR": 52.55083924356659,
+    "Median Rank": 2.0,
+    "Mean Rank": 12.552238805970148,
+    "Num Queries": 670
+  }
+}

@@ -20,6 +20,19 @@ Flamingo/best_model-*.pt
 Flamingo/checkpoints/
 Flamingo/old_versions/
 
+# SpartanVLM — weights and training runs
+SpartanVLM/*.pth
+SpartanVLM/*.pth.tar
+SpartanVLM/runs/
+
+# InternVideo2-CLIP — ONNX models and training artifacts
+InternVideo2_CLIP/checkpoints/*.onnx
+InternVideo2_CLIP/lora_adapter/
+
+# InternVL2 — local prototype weights
+InternVL2/*.pth
+InternVL2/training_logs.txt
+
 # Raw datasets
 DATA/MSVD/
 DATA/MSRVTT/
@@ -30,6 +43,10 @@ DATA/vlm_pipeline/processed_outputs/
 # Prototype generated/data dirs
 Prototype/videos/
 Prototype/chroma_db/
+
+# Node / npm
+node_modules/
+package-lock.json
 
 # Archives
 *.zip

@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.pth
+*.pth.tar
+*.pt
+.DS_Store
+.ipynb_checkpoints/
+runs/
+data/
+videos/
+*.zip
+cache/
