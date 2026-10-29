@@ -3,9 +3,9 @@
 # model.pth (LoRA adapters unmerged, Lightning checkpoint): set peft.enabled: true and peft.vision.enabled: true, then
 #   VideoCLIPPlModel.load_from_checkpoint('model.pth', experiment_spec=cfg).
 # model.text_encoder = Apple MobileCLIP-B-LT weights (mobileclip_blt.pt); base vision/alignment weights resolve from
-# model.internvideo2clip_hf_id through the Hugging Face cache.
+# model.internvl_hf_id through the Hugging Face cache.
 model:
-  type: internvideo2-clip-l14
+  type: internvl-l14
   adaptor_name: null
   freeze_vision_encoder: true
   freeze_text_encoder: true
@@ -14,7 +14,7 @@ model:
   init_logit_bias: 0.0
   canonicalize_text: false
   pretrained_ckpt: null
-  internvideo2clip_hf_id: OpenGVLab/InternVideo2_distillation_models
+  internvl_hf_id: OpenGVLab/InternVideo2_distillation_models
   vision_encoder: null
   text_encoder: /models/mobileclip_blt.pt
   clip_head: null

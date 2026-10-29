@@ -31,7 +31,6 @@ Evaluation outputs and metric artifacts are saved under `results/`.
 ## Repository Files
 
 - `train.py`: Command-line training script for cross-modal contrastive fine-tuning.
-- `InternVideo2_Finetune_Colab.ipynb`: Complete fine-tuning notebook for Google Colab and cloud GPU environments.
 - `evaluate.py`: Unified retrieval evaluation engine supporting baseline and fine-tuned modes on MSR-VTT and MSVD.
 - `tokenizer/`: Tokenizer vocabulary and configuration files.
 - `results/`: Machine-readable evaluation result JSONs and technical summary report.
@@ -60,5 +59,5 @@ python evaluate.py --mode baseline
 
 - **Fine-tuned adapter evaluation:**
 ```bash
-python evaluate.py --mode finetuned --checkpoint checkpoints/best_internvideo2_adapter.pth
+python evaluate.py --mode finetuned --checkpoint checkpoints/best_internvl_adapter.pth
 ```

@@ -1,4 +1,4 @@
-"""Cross-modal contrastive fine-tuning for InternVideo2-CLIP."""
+"""Cross-modal contrastive fine-tuning for InternVL."""
 
 import os
 import json
@@ -166,13 +166,13 @@ def symmetric_loss(model, video, caption):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fine-tune InternVideo2-CLIP retrieval adapters.")
+    parser = argparse.ArgumentParser(description="Fine-tune InternVL retrieval adapters.")
     parser.add_argument("--data-root", type=Path, default=BASE_DIR / ".." / "data")
-    parser.add_argument("--vision-model", type=Path, default=BASE_DIR / "iv2clip_vision_fp16.onnx")
-    parser.add_argument("--text-model", type=Path, default=BASE_DIR / "iv2clip_text_fp16.onnx")
+    parser.add_argument("--vision-model", type=Path, default=BASE_DIR / "internvl_vision_fp16.onnx")
+    parser.add_argument("--text-model", type=Path, default=BASE_DIR / "internvl_text_fp16.onnx")
     parser.add_argument("--tokenizer", type=Path, default=BASE_DIR / "tokenizer")
     parser.add_argument("--cache-dir", type=Path, default=BASE_DIR / "cache")
-    parser.add_argument("--output-dir", type=Path, default=BASE_DIR / "checkpoints" / "internvideo2_clip_finetuned")
+    parser.add_argument("--output-dir", type=Path, default=BASE_DIR / "checkpoints" / "internvl_finetuned")
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--learning-rate", type=float, default=5e-5)

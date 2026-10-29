@@ -1,8 +1,8 @@
-# InternVideo2-CLIP Fine-Tuned Checkpoint
+# InternVL Fine-Tuned Checkpoint
 
 ## Overview
 
-This directory documents the fine-tuned **InternVideo2-CLIP** model checkpoint (`InternVideo2_CLIP_Finetuned.safetensors`).
+This directory documents the fine-tuned **InternVL** model checkpoint (`InternVL_Finetuned.safetensors`).
 
 The model is adapted for zero-shot text-to-video retrieval, mapping video clips and natural-language queries into a shared 512-dimensional embedding space.
 
@@ -10,8 +10,8 @@ The model is adapted for zero-shot text-to-video retrieval, mapping video clips 
 
 ## Checkpoint Details
 
-- **Model Name:** InternVideo2-CLIP Fine-Tuned
-- **Checkpoint File:** `InternVideo2_CLIP_Finetuned.safetensors`
+- **Model Name:** InternVL Fine-Tuned
+- **Checkpoint File:** `InternVL_Finetuned.safetensors`
 - **SHA-256 Checksum:** `d3f3401d5da979587382c29705b6eb260f41b452708b7da2b705bf8f5970c7ea`
 - **Output Embedding Dimension:** 512 (L2-normalized)
 

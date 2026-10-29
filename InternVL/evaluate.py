@@ -1,4 +1,4 @@
-"""Unified evaluation script for InternVideo2-CLIP (Baseline & Fine-Tuned)."""
+"""Unified evaluation script for InternVL (Baseline & Fine-Tuned)."""
 
 import os
 import json
@@ -44,7 +44,7 @@ class RetrievalAdapters(nn.Module):
         return v, t
 
 
-class InternVideo2CLIPEvaluator:
+class InternVLEvaluator:
     def __init__(self, vision_model_path, text_model_path, tokenizer_dir, checkpoint_path=None):
         vision_model_path = Path(vision_model_path)
         text_model_path = Path(text_model_path)
@@ -57,7 +57,7 @@ class InternVideo2CLIPEvaluator:
         if not tokenizer_dir.is_dir():
             raise FileNotFoundError(f"Tokenizer directory not found at {tokenizer_dir}")
 
-        print("Loading InternVideo2-CLIP ONNX inference sessions...")
+        print("Loading InternVL ONNX inference sessions...")
         providers = ['CoreMLExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
         try:
             self.text_sess = ort.InferenceSession(str(text_model_path), providers=providers)
@@ -156,9 +156,9 @@ def compute_metrics(sim_matrix: np.ndarray):
     }
 
 
-def evaluate_dataset(model: InternVideo2CLIPEvaluator, mode: str, name: str, vids_dir: str, anno_file: str, output_dir: str, batch_size: int = 64):
+def evaluate_dataset(model: InternVLEvaluator, mode: str, name: str, vids_dir: str, anno_file: str, output_dir: str, batch_size: int = 64):
     print(f"\n{'='*55}")
-    print(f" Starting InternVideo2-CLIP ({mode.capitalize()}) Evaluation: {name}")
+    print(f" Starting InternVL ({mode.capitalize()}) Evaluation: {name}")
     print(f"{'='*55}")
 
     if not os.path.isfile(anno_file):
@@ -199,7 +199,7 @@ def evaluate_dataset(model: InternVideo2CLIPEvaluator, mode: str, name: str, vid
     metrics = compute_metrics(sim_matrix)
 
     print("\n" + "-"*48)
-    print(f"  InternVideo2-CLIP ({mode.capitalize()}) Results: {name}")
+    print(f"  InternVL ({mode.capitalize()}) Results: {name}")
     print("-"*48)
     print(f"  Queries Evaluated : {metrics['Num Queries']}")
     print(f"  Recall@1 (R@1)    : {metrics['R@1']:.2f}%")
@@ -210,16 +210,16 @@ def evaluate_dataset(model: InternVideo2CLIPEvaluator, mode: str, name: str, vid
     print(f"  Mean Rank (MeanR) : {metrics['Mean Rank']:.1f}")
     print("-"*48)
 
-    display_name = f"InternVideo2-CLIP {mode}"
+    display_name = f"InternVL {mode}"
     metrics.update({
         "display_name": display_name,
-        "model": "InternVideo2-CLIP",
+        "model": "InternVL",
         "dataset": name,
         "mode": mode,
         "protocol": "text-to-video retrieval; one caption per video",
     })
     os.makedirs(output_dir, exist_ok=True)
-    out_file = os.path.join(output_dir, f"internvideo2_clip_{mode}_{name.lower().replace('-', '_')}.json")
+    out_file = os.path.join(output_dir, f"internvl_{mode}_{name.lower().replace('-', '_')}.json")
     with open(out_file, "w") as f:
         json.dump(metrics, f, indent=2)
     print(f"Saved results to {out_file}")
@@ -228,12 +228,12 @@ def evaluate_dataset(model: InternVideo2CLIPEvaluator, mode: str, name: str, vid
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate InternVideo2-CLIP (Baseline or Fine-Tuned) on retrieval benchmarks.")
+    parser = argparse.ArgumentParser(description="Evaluate InternVL (Baseline or Fine-Tuned) on retrieval benchmarks.")
     parser.add_argument("--mode", choices=["baseline", "finetuned"], default="baseline", help="Evaluation mode (baseline or finetuned)")
     parser.add_argument("--checkpoint", type=Path, default=None, help="Path to fine-tuned adapter checkpoint (.pth)")
     parser.add_argument("--data-root", type=Path, default=BASE_DIR / ".." / "data", help="Root directory containing msrvtt and msvd data")
-    parser.add_argument("--vision-model", type=Path, default=BASE_DIR / "iv2clip_vision_fp16.onnx", help="Path to vision ONNX model")
-    parser.add_argument("--text-model", type=Path, default=BASE_DIR / "iv2clip_text_fp16.onnx", help="Path to text ONNX model")
+    parser.add_argument("--vision-model", type=Path, default=BASE_DIR / "internvl_vision_fp16.onnx", help="Path to vision ONNX model")
+    parser.add_argument("--text-model", type=Path, default=BASE_DIR / "internvl_text_fp16.onnx", help="Path to text ONNX model")
     parser.add_argument("--tokenizer", type=Path, default=BASE_DIR / "tokenizer", help="Path to tokenizer directory")
     parser.add_argument("--output-dir", type=Path, default=BASE_DIR / "results", help="Directory to save evaluation results")
     parser.add_argument("--dataset", choices=["all", "msrvtt", "msvd"], default="all", help="Dataset(s) to evaluate")
@@ -244,7 +244,7 @@ def main():
     if args.checkpoint is not None and mode == "baseline":
         mode = "finetuned"
 
-    model = InternVideo2CLIPEvaluator(
+    model = InternVLEvaluator(
         vision_model_path=args.vision_model,
         text_model_path=args.text_model,
         tokenizer_dir=args.tokenizer,
@@ -264,7 +264,7 @@ def main():
         evaluate_dataset(model, mode, "MSVD", str(msvd_vids), str(msvd_anno), str(args.output_dir), args.batch_size)
 
     print(f"\n{'='*55}")
-    print(f" INTERNVIDEO2-CLIP ({mode.upper()}) EVALUATION COMPLETED!")
+    print(f" INTERNVL ({mode.upper()}) EVALUATION COMPLETED!")
     print(f"{'='*55}")
 
 

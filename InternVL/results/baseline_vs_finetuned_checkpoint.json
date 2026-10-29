@@ -1,6 +1,6 @@
 {
   "baseline_label": "Pre-trained baseline",
-  "selected_checkpoint": "InternVideo2-CLIP fine-tuned",
+  "selected_checkpoint": "InternVL fine-tuned",
   "datasets": {
     "MSR-VTT": {
       "baseline": {

@@ -1,9 +1,9 @@
 {
-  "model": "InternVideo2-CLIP",
-  "display_name": "InternVideo2-CLIP fine-tuned",
+  "model": "InternVL",
+  "display_name": "InternVL fine-tuned",
   "dataset": "msrvtt",
   "protocol": "text-to-video retrieval; one caption per video",
-  "checkpoint": "checkpoints/internvideo2_clip_finetuned/InternVideo2_CLIP_Finetuned.safetensors",
+  "checkpoint": "checkpoints/internvl_finetuned/InternVL_Finetuned.safetensors",
   "Num Queries": 1000,
   "R@1": 42.0,
   "R@5": 65.8,

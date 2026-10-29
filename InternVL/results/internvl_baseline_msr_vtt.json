@@ -5,7 +5,7 @@
   "MRR": 52.87169825336906,
   "Num Queries": 1000,
   "Median Rank": 2.0,
-  "display_name": "InternVideo2-CLIP baseline",
+  "display_name": "InternVL baseline",
   "dataset": "MSR-VTT",
   "protocol": "text-to-video retrieval; one caption per video",
   "source_result": "Previously recorded baseline values preserved in baseline_vs_finetuned_checkpoint.json"
