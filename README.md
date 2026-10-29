@@ -98,7 +98,7 @@ For InternVL specifically:
 cd InternVL
 pip install -r requirements.txt
 python train.py --epochs 10 --batch-size 64
-python evaluate_internvideo2_clip_finetuned.py
+python evaluate.py --mode baseline
 ```
 
 For the Prototype web app specifically:

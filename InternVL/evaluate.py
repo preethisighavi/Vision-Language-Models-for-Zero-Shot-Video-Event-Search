@@ -1,14 +1,15 @@
-"""Evaluate the fine-tuned InternVideo2-CLIP checkpoint on retrieval splits."""
+"""Unified evaluation script for InternVideo2-CLIP (Baseline & Fine-Tuned)."""
 
 import os
 import json
-import hashlib
 import argparse
 from pathlib import Path
-import torch
 import cv2
 import numpy as np
 from PIL import Image
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from torchvision import transforms
 from tqdm import tqdm
 import onnxruntime as ort
@@ -16,14 +17,35 @@ from transformers import AutoTokenizer
 
 BASE_DIR = Path(__file__).resolve().parent
 
-EXPECTED_ENCODER_HASHES = {
-    "iv2clip_vision_fp16.onnx": "141e726ae5dcf0bf7c3f21054e186ce8021410c403f73574e0d3dbb430be38f5",
-    "iv2clip_text_fp16.onnx": "6e41fa1c7fb94e6b438375048603f818dc6c6b5ee35f3d7259905905a3760f0b",
-}
+
+class Adapter(nn.Module):
+    def __init__(self, dim=512):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(dim, dim),
+            nn.GELU(),
+            nn.Linear(dim, dim),
+        )
+
+    def forward(self, x):
+        return x + 0.1 * self.net(x)
 
 
-class InternVideo2CLIP:
-    def __init__(self, vision_model_path, text_model_path, tokenizer_dir, check_hashes=False):
+class RetrievalAdapters(nn.Module):
+    def __init__(self, dim=512):
+        super().__init__()
+        self.video_adapter = Adapter(dim)
+        self.text_adapter = Adapter(dim)
+        self.logit_scale = nn.Parameter(torch.ones([]) * float(np.log(1 / 0.07)))
+
+    def forward(self, v, t):
+        v = F.normalize(self.video_adapter(v), dim=-1)
+        t = F.normalize(self.text_adapter(t), dim=-1)
+        return v, t
+
+
+class InternVideo2CLIPEvaluator:
+    def __init__(self, vision_model_path, text_model_path, tokenizer_dir, checkpoint_path=None):
         vision_model_path = Path(vision_model_path)
         text_model_path = Path(text_model_path)
         tokenizer_dir = Path(tokenizer_dir)
@@ -35,25 +57,13 @@ class InternVideo2CLIP:
         if not tokenizer_dir.is_dir():
             raise FileNotFoundError(f"Tokenizer directory not found at {tokenizer_dir}")
 
-        if check_hashes:
-            for path in (vision_model_path, text_model_path):
-                expected = EXPECTED_ENCODER_HASHES.get(path.name)
-                if expected:
-                    digest = hashlib.sha256()
-                    with open(path, "rb") as model_file:
-                        for chunk in iter(lambda: model_file.read(8 * 1024 * 1024), b""):
-                            digest.update(chunk)
-                    actual = digest.hexdigest()
-                    if actual != expected:
-                        print(f"Warning: SHA256 checksum mismatch for {path.name} (got {actual}, expected {expected})")
-
         print("Loading InternVideo2-CLIP ONNX inference sessions...")
         providers = ['CoreMLExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
         try:
             self.text_sess = ort.InferenceSession(str(text_model_path), providers=providers)
             self.vis_sess = ort.InferenceSession(str(vision_model_path), providers=providers)
         except Exception as exc:
-            print(f"Hardware-accelerated provider initialization fallback to CPU: {exc}")
+            print(f"Provider fallback to CPU: {exc}")
             self.text_sess = ort.InferenceSession(str(text_model_path), providers=['CPUExecutionProvider'])
             self.vis_sess = ort.InferenceSession(str(vision_model_path), providers=['CPUExecutionProvider'])
         self.tokenizer = AutoTokenizer.from_pretrained(str(tokenizer_dir))
@@ -63,6 +73,15 @@ class InternVideo2CLIP:
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
+
+        self.adapters = None
+        if checkpoint_path and Path(checkpoint_path).is_file():
+            print(f"Loading fine-tuned retrieval adapters from {checkpoint_path}...")
+            self.adapters = RetrievalAdapters()
+            ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+            state_dict = ckpt.get("adapter_state_dict", ckpt)
+            self.adapters.load_state_dict(state_dict, strict=False)
+            self.adapters.eval()
 
     def extract_frames(self, video_path: str, num_frames: int = 8) -> np.ndarray:
         cap = cv2.VideoCapture(str(video_path))
@@ -87,6 +106,10 @@ class InternVideo2CLIP:
         batch = np.expand_dims(frames, axis=0).astype(np.float32)
         out = self.vis_sess.run(['image_embedding'], {'image': batch})[0]
         norm = out / np.linalg.norm(out, axis=-1, keepdims=True)
+        if self.adapters is not None:
+            with torch.no_grad():
+                v_t = torch.from_numpy(norm).float()
+                norm = F.normalize(self.adapters.video_adapter(v_t), dim=-1).numpy()
         return norm
 
     def encode_texts(self, captions: list, batch_size: int = 64) -> np.ndarray:
@@ -99,6 +122,10 @@ class InternVideo2CLIP:
                 'attention_mask': enc['attention_mask'].astype(np.int64)
             })[0]
             norm = out / np.linalg.norm(out, axis=-1, keepdims=True)
+            if self.adapters is not None:
+                with torch.no_grad():
+                    t_t = torch.from_numpy(norm).float()
+                    norm = F.normalize(self.adapters.text_adapter(t_t), dim=-1).numpy()
             all_embs.append(norm)
         return np.concatenate(all_embs, axis=0)
 
@@ -129,9 +156,9 @@ def compute_metrics(sim_matrix: np.ndarray):
     }
 
 
-def evaluate_dataset(model: InternVideo2CLIP, name: str, vids_dir: str, anno_file: str, output_dir: str, batch_size: int = 64):
+def evaluate_dataset(model: InternVideo2CLIPEvaluator, mode: str, name: str, vids_dir: str, anno_file: str, output_dir: str, batch_size: int = 64):
     print(f"\n{'='*55}")
-    print(f" Starting InternVideo2-CLIP Evaluation on: {name}")
+    print(f" Starting InternVideo2-CLIP ({mode.capitalize()}) Evaluation: {name}")
     print(f"{'='*55}")
 
     if not os.path.isfile(anno_file):
@@ -156,27 +183,23 @@ def evaluate_dataset(model: InternVideo2CLIP, name: str, vids_dir: str, anno_fil
 
     print(f"Loaded {n} verified test video-caption pairs for {name}.")
 
-    # Step 1: Encode all videos
     print(f"Encoding {n} videos...")
     v_embs = []
     for it in tqdm(valid_items, desc=f"{name} Videos"):
         v_embs.append(model.encode_video(it["path"]))
-    V = np.concatenate(v_embs, axis=0) # (N, 512)
+    V = np.concatenate(v_embs, axis=0)
 
-    # Step 2: Encode all captions
     print(f"Encoding {n} captions...")
     captions = [it["caption"] for it in valid_items]
-    T = model.encode_texts(captions, batch_size=batch_size) # (N, 512)
+    T = model.encode_texts(captions, batch_size=batch_size)
 
-    # Step 3: Compute cosine similarity matrix
     print("Computing similarity matrix...")
-    sim_matrix = T @ V.T # (N, N)
+    sim_matrix = T @ V.T
 
-    # Step 4: Compute metrics
     metrics = compute_metrics(sim_matrix)
 
     print("\n" + "-"*48)
-    print(f"  InternVideo2-CLIP Results: {name}")
+    print(f"  InternVideo2-CLIP ({mode.capitalize()}) Results: {name}")
     print("-"*48)
     print(f"  Queries Evaluated : {metrics['Num Queries']}")
     print(f"  Recall@1 (R@1)    : {metrics['R@1']:.2f}%")
@@ -187,13 +210,16 @@ def evaluate_dataset(model: InternVideo2CLIP, name: str, vids_dir: str, anno_fil
     print(f"  Mean Rank (MeanR) : {metrics['Mean Rank']:.1f}")
     print("-"*48)
 
+    display_name = f"InternVideo2-CLIP {mode}"
     metrics.update({
-        "display_name": "InternVideo2-CLIP fine-tuned",
+        "display_name": display_name,
         "model": "InternVideo2-CLIP",
+        "dataset": name,
+        "mode": mode,
         "protocol": "text-to-video retrieval; one caption per video",
     })
     os.makedirs(output_dir, exist_ok=True)
-    out_file = os.path.join(output_dir, f"internvideo2_clip_finetuned_{name.lower().replace('-', '_')}.json")
+    out_file = os.path.join(output_dir, f"internvideo2_clip_{mode}_{name.lower().replace('-', '_')}.json")
     with open(out_file, "w") as f:
         json.dump(metrics, f, indent=2)
     print(f"Saved results to {out_file}")
@@ -202,7 +228,9 @@ def evaluate_dataset(model: InternVideo2CLIP, name: str, vids_dir: str, anno_fil
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate the fine-tuned InternVideo2-CLIP model on retrieval benchmarks.")
+    parser = argparse.ArgumentParser(description="Evaluate InternVideo2-CLIP (Baseline or Fine-Tuned) on retrieval benchmarks.")
+    parser.add_argument("--mode", choices=["baseline", "finetuned"], default="baseline", help="Evaluation mode (baseline or finetuned)")
+    parser.add_argument("--checkpoint", type=Path, default=None, help="Path to fine-tuned adapter checkpoint (.pth)")
     parser.add_argument("--data-root", type=Path, default=BASE_DIR / ".." / "data", help="Root directory containing msrvtt and msvd data")
     parser.add_argument("--vision-model", type=Path, default=BASE_DIR / "iv2clip_vision_fp16.onnx", help="Path to vision ONNX model")
     parser.add_argument("--text-model", type=Path, default=BASE_DIR / "iv2clip_text_fp16.onnx", help="Path to text ONNX model")
@@ -210,14 +238,17 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=BASE_DIR / "results", help="Directory to save evaluation results")
     parser.add_argument("--dataset", choices=["all", "msrvtt", "msvd"], default="all", help="Dataset(s) to evaluate")
     parser.add_argument("--batch-size", type=int, default=64, help="Batch size for text encoding")
-    parser.add_argument("--check-hashes", action="store_true", help="Verify SHA256 hashes of ONNX model files")
     args = parser.parse_args()
 
-    model = InternVideo2CLIP(
+    mode = args.mode
+    if args.checkpoint is not None and mode == "baseline":
+        mode = "finetuned"
+
+    model = InternVideo2CLIPEvaluator(
         vision_model_path=args.vision_model,
         text_model_path=args.text_model,
         tokenizer_dir=args.tokenizer,
-        check_hashes=args.check_hashes,
+        checkpoint_path=args.checkpoint,
     )
 
     msrvtt_vids = args.data_root / "msrvtt" / "videos"
@@ -227,14 +258,14 @@ def main():
     msvd_anno = args.data_root / "msvd" / "msvd_test.json"
 
     if args.dataset in ("all", "msrvtt"):
-        evaluate_dataset(model, "MSR-VTT", str(msrvtt_vids), str(msrvtt_anno), str(args.output_dir), args.batch_size)
+        evaluate_dataset(model, mode, "MSR-VTT", str(msrvtt_vids), str(msrvtt_anno), str(args.output_dir), args.batch_size)
 
     if args.dataset in ("all", "msvd"):
-        evaluate_dataset(model, "MSVD", str(msvd_vids), str(msvd_anno), str(args.output_dir), args.batch_size)
+        evaluate_dataset(model, mode, "MSVD", str(msvd_vids), str(msvd_anno), str(args.output_dir), args.batch_size)
 
-    print("\n" + "="*55)
-    print(" INTERNVIDEO2-CLIP BENCHMARK RUN COMPLETED!")
-    print("="*55)
+    print(f"\n{'='*55}")
+    print(f" INTERNVIDEO2-CLIP ({mode.upper()}) EVALUATION COMPLETED!")
+    print(f"{'='*55}")
 
 
 if __name__ == "__main__":
