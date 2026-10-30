@@ -33,3 +33,6 @@ CLIP,fine_tuned_v2,MSVD,MRR,0.5018587867848034,clip_finetuned_v2_results.json
 CLIP,fine_tuned_v2,MSVD,MeanRank,15.249504736519828,clip_finetuned_v2_results.json
 CLIP,fine_tuned_v2,MSVD,MedianRank,2.0,clip_finetuned_v2_results.json
 CLIP,fine_tuned_v2,MSVD,avg_query_latency_sec,0.01614055593011273,clip_finetuned_v2_results.json
+CLIP,timestamp_localization,MSVD,TimestampWithinDurationRate,1.0,clip_timestamp_demo_results.json
+CLIP,timestamp_localization,MSVD,AvgSimilarityScore,0.2980463206768036,clip_timestamp_demo_results.json
+CLIP,timestamp_localization,MSVD,NumSamples,5,clip_timestamp_demo_results.json
