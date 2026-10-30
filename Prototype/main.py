@@ -21,6 +21,9 @@ CHROMA_DB_DIR = "chroma_db"
 STATIC_DIR = "static"
 FRAMES_PER_SECOND = 1          # How many frames to extract per second of video
 MODEL_NAME = "openai/clip-vit-base-patch32"
+# Fine-tuned checkpoint from CLIP_FT.ipynb (MSVD). Gitignored — not present on
+# every machine, so loading falls back to stock weights if it's missing.
+CHECKPOINT_PATH = "../output_msvd_clip/best.pt"
 
 # ─────────────────────────────────────────────
 # Ensure directories exist
@@ -42,8 +45,29 @@ print("⚙️  Using CPU for inference.")
 print(f"Loading CLIP model: {MODEL_NAME} ...")
 clip_model = CLIPModel.from_pretrained(MODEL_NAME).to(DEVICE)
 clip_processor = CLIPProcessor.from_pretrained(MODEL_NAME)
+
+# ─────────────────────────────────────────────
+# Load fine-tuned checkpoint (MSVD) over the stock weights, if present.
+# Checkpoint state dict keys are prefixed "clip." (saved from a wrapper
+# module), so strip that prefix before loading into the raw CLIPModel.
+# ─────────────────────────────────────────────
+CLIP_WEIGHTS_SOURCE = "stock"
+if os.path.exists(CHECKPOINT_PATH):
+    try:
+        ckpt = torch.load(CHECKPOINT_PATH, map_location=DEVICE, weights_only=False)
+        state_dict = ckpt.get("model_state_dict", ckpt)
+        state_dict = {k.removeprefix("clip."): v for k, v in state_dict.items()}
+        missing, unexpected = clip_model.load_state_dict(state_dict, strict=False)
+        CLIP_WEIGHTS_SOURCE = "fine-tuned (MSVD)"
+        print(f"✅ Loaded fine-tuned checkpoint from {CHECKPOINT_PATH} "
+              f"({len(missing)} missing, {len(unexpected)} unexpected keys).")
+    except Exception as e:
+        print(f"⚠️  Failed to load fine-tuned checkpoint ({e}); using stock weights.")
+else:
+    print(f"⚠️  No fine-tuned checkpoint found at {CHECKPOINT_PATH}; using stock weights.")
+
 clip_model.eval()
-print("✅ CLIP model loaded and ready.")
+print(f"✅ CLIP model loaded and ready ({CLIP_WEIGHTS_SOURCE}).")
 
 # ─────────────────────────────────────────────
 # Initialize ChromaDB
@@ -187,6 +211,7 @@ def health_check():
         "status": "online",
         "device": str(DEVICE),
         "clip_model": MODEL_NAME,
+        "clip_weights": CLIP_WEIGHTS_SOURCE,
         "total_indexed_frames": collection.count(),
     }
 
