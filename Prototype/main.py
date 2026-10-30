@@ -21,8 +21,7 @@ CHROMA_DB_DIR = "chroma_db"
 STATIC_DIR = "static"
 FRAMES_PER_SECOND = 1          # How many frames to extract per second of video
 MODEL_NAME = "openai/clip-vit-base-patch32"
-# Fine-tuned checkpoint from CLIP_FT.ipynb (MSVD). Gitignored — not present on
-# every machine, so loading falls back to stock weights if it's missing.
+# Fine-tuned checkpoint from CLIP_FT.ipynb (MSVD). Gitignored — not present on every machine, so loading falls back to stock weights if it's missing.
 CHECKPOINT_PATH = "../output_msvd_clip/best.pt"
 
 # ─────────────────────────────────────────────
@@ -37,7 +36,7 @@ os.makedirs(STATIC_DIR, exist_ok=True)
 # MPS (Apple Silicon) can cause indefinite hangs during model init.
 # ─────────────────────────────────────────────
 DEVICE = torch.device("cpu")
-print("⚙️  Using CPU for inference.")
+print(" Using CPU for inference.")
 
 # ─────────────────────────────────────────────
 # Load CLIP Model (done once at startup)
@@ -59,15 +58,15 @@ if os.path.exists(CHECKPOINT_PATH):
         state_dict = {k.removeprefix("clip."): v for k, v in state_dict.items()}
         missing, unexpected = clip_model.load_state_dict(state_dict, strict=False)
         CLIP_WEIGHTS_SOURCE = "fine-tuned (MSVD)"
-        print(f"✅ Loaded fine-tuned checkpoint from {CHECKPOINT_PATH} "
+        print(f"Loaded fine-tuned checkpoint from {CHECKPOINT_PATH} "
               f"({len(missing)} missing, {len(unexpected)} unexpected keys).")
     except Exception as e:
-        print(f"⚠️  Failed to load fine-tuned checkpoint ({e}); using stock weights.")
+        print(f"Failed to load fine-tuned checkpoint ({e}); using stock weights.")
 else:
-    print(f"⚠️  No fine-tuned checkpoint found at {CHECKPOINT_PATH}; using stock weights.")
+    print(f"No fine-tuned checkpoint found at {CHECKPOINT_PATH}; using stock weights.")
 
 clip_model.eval()
-print(f"✅ CLIP model loaded and ready ({CLIP_WEIGHTS_SOURCE}).")
+print(f"CLIP model loaded and ready ({CLIP_WEIGHTS_SOURCE}).")
 
 # ─────────────────────────────────────────────
 # Initialize ChromaDB
@@ -78,7 +77,7 @@ collection = chroma_client.get_or_create_collection(
     name="video_frames",
     metadata={"hnsw:space": "cosine"}
 )
-print("✅ ChromaDB initialized and 'video_frames' collection is ready.")
+print("ChromaDB initialized and 'video_frames' collection is ready.")
 
 # ─────────────────────────────────────────────
 # FastAPI App
