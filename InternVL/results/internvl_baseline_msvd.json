@@ -1,0 +1,12 @@
+{
+  "R@1": 65.82089552238806,
+  "R@5": 91.04477611940298,
+  "R@10": 95.52238805970148,
+  "MRR": 76.72329966521639,
+  "Num Queries": 670,
+  "Median Rank": 1.0,
+  "display_name": "InternVL baseline",
+  "dataset": "MSVD",
+  "protocol": "text-to-video retrieval; one caption per video",
+  "source_result": "Previously recorded baseline values preserved in baseline_vs_finetuned_checkpoint.json"
+}

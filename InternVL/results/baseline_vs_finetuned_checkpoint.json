@@ -1,0 +1,47 @@
+{
+  "baseline_label": "Pre-trained baseline",
+  "selected_checkpoint": "InternVL fine-tuned",
+  "datasets": {
+    "MSR-VTT": {
+      "baseline": {
+        "R@1": 41.9,
+        "R@5": 65.7,
+        "R@10": 75.9,
+        "MRR": 52.87169825336906,
+        "Num Queries": 1000,
+        "Median Rank": 2.0
+      },
+      "fine_tuned": {
+        "R@1": 42.0,
+        "R@5": 65.8,
+        "R@10": 75.3,
+        "MRR": 52.95214063085032,
+        "Median Rank": 2.0,
+        "Mean Rank": 22.304,
+        "Num Queries": 1000
+      },
+      "delta_r1_percentage_points": 0.1
+    },
+    "MSVD": {
+      "baseline": {
+        "R@1": 65.82089552238806,
+        "R@5": 91.04477611940298,
+        "R@10": 95.52238805970148,
+        "MRR": 76.72329966521639,
+        "Num Queries": 670,
+        "Median Rank": 1.0
+      },
+      "fine_tuned": {
+        "R@1": 65.82089552238806,
+        "R@5": 91.04477611940298,
+        "R@10": 95.67164179104478,
+        "MRR": 76.69419048589468,
+        "Median Rank": 1.0,
+        "Mean Rank": 3.02089552238806,
+        "Num Queries": 670
+      },
+      "delta_r1_percentage_points": 0.0
+    }
+  },
+  "evaluation_protocol": "Zero-shot text-to-video retrieval; 1 query caption per video; full gallery ranking"
+}

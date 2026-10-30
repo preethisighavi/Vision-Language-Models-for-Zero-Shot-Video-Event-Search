@@ -20,6 +20,15 @@ Flamingo/best_model-*.pt
 Flamingo/checkpoints/
 Flamingo/old_versions/
 
+# SpartanVLM — weights and training runs
+SpartanVLM/*.pth
+SpartanVLM/*.pth.tar
+SpartanVLM/runs/
+
+# InternVL — ONNX models and training artifacts
+InternVL/checkpoints/*.onnx
+InternVL/lora_adapter/
+
 # Raw datasets
 DATA/MSVD/
 DATA/MSRVTT/
@@ -30,6 +39,10 @@ DATA/vlm_pipeline/processed_outputs/
 # Prototype generated/data dirs
 Prototype/videos/
 Prototype/chroma_db/
+
+# Node / npm
+node_modules/
+package-lock.json
 
 # Archives
 *.zip
