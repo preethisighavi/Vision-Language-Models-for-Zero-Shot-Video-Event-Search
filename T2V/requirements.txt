@@ -1,0 +1,15 @@
+# Text-to-video (T2V/). Install on the GPU machine: pip install -r T2V/requirements.txt
+torch>=2.4          # nn.RMSNorm, SDPA
+diffusers>=0.33     # AutoencoderKLWan, WanPipeline
+transformers>=4.48
+accelerate
+ftfy                # Wan text preprocessing
+sentencepiece       # umT5 tokenizer (Wan)
+av                  # video decode/encode
+numpy
+pandas
+pyarrow
+pyyaml
+scipy               # FVD
+fastapi             # serve.py
+uvicorn[standard]

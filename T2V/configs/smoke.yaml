@@ -1,0 +1,42 @@
+# CPU smoke test: tiny model, synthetic latents, dummy text encoder, no downloads.
+#   python -m T2V.train --config T2V/configs/smoke.yaml --overfit-one-batch
+text_encoder: dummy
+vae: null
+
+data:
+  synthetic: true
+  stage: video
+  latent_shape: [16, 5, 8, 8]
+  fps: 3   # team data (VLM2Vec MSR-VTT/MSVD) is stored at 3 fps
+
+model:
+  in_channels: 16
+  patch_size: [1, 2, 2]
+  hidden: 128
+  depth: 4
+  heads: 4
+  mlp_ratio: 2.0
+
+train:
+  out_dir: T2V/runs/smoke
+  steps: 600
+  batch_size: 4
+  lr: 1.0e-3
+  warmup: 10
+  weight_decay: 0.0
+  grad_clip: 1.0
+  ema_decay: 0.99
+  caption_dropout: 0.1
+  t_mode: logit_normal
+  num_workers: 0
+  log_every: 100
+  ckpt_every: 300
+  sample_every: 0
+  compile: false
+  seed: 0
+
+sample:
+  steps: 25
+  cfg: 1.0
+  shift: 1.0
+  preview_prompts: [synthetic clip number 0]

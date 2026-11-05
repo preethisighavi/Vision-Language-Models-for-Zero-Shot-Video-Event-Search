@@ -1,0 +1,47 @@
+# Stage B: 17-frame 128px clips (~5.3 s at 3 fps). Start from the stage-A checkpoint:
+#   python -m T2V.train --config T2V/configs/tiny_video.yaml --init-from T2V/runs/tiny_image/last.pt
+text_encoder: openai/clip-vit-large-patch14
+vae: Wan-AI/Wan2.1-T2V-1.3B-Diffusers
+
+data:
+  latent_dir: /data/t2v/latents
+  stage: video
+  latent_shape: [16, 5, 16, 16]
+  fps: 3   # team data (VLM2Vec MSR-VTT/MSVD) is stored at 3 fps
+
+model:
+  in_channels: 16
+  patch_size: [1, 2, 2]
+  hidden: 768
+  depth: 12
+  heads: 12
+  mlp_ratio: 4.0
+  grad_ckpt: false
+
+train:
+  out_dir: T2V/runs/tiny_video
+  steps: 120000
+  batch_size: 128
+  lr: 1.0e-4
+  warmup: 1000
+  weight_decay: 0.0
+  grad_clip: 1.0
+  ema_decay: 0.9999
+  caption_dropout: 0.1
+  t_mode: logit_normal
+  num_workers: 4
+  log_every: 100
+  ckpt_every: 5000
+  sample_every: 5000
+  compile: false
+  seed: 0
+
+sample:
+  steps: 50
+  cfg: 6.0
+  shift: 1.0
+  preview_prompts:
+    - a man is playing a guitar on stage
+    - a cat is playing with a ball of yarn
+    - a car is driving down a city street at night
+    - a woman is cooking pasta in a kitchen

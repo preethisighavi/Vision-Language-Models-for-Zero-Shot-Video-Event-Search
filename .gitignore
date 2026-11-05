@@ -46,3 +46,8 @@ package-lock.json
 
 # Archives
 *.zip
+
+# Text-to-video (T2V/) runs, cached latents, eval clips
+T2V/runs/
+T2V/eval_runs/
+T2V/data/manifest.parquet
