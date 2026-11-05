@@ -42,6 +42,9 @@ pip install -r T2V/requirements.txt
 
 # 0. sanity check on CPU, no downloads (≈2 min): must print PASS-level MSE (≈0.01)
 python -m T2V.train --config T2V/configs/smoke.yaml --overfit-one-batch --steps 4000 --device cpu
+#    real-video check on any machine (downloads 6 clips + VAE + CLIP): VAE round trip, overfit, generate.
+#    Reference: Apple M3 -> PASS, VAE 26.7 dB, generations 23.2 dB, 8.6 min. Writes report.json + mp4s.
+python -m T2V.smoke_real --out T2V/runs/smoke_real
 
 # 1. clip manifest (reuses DATA/vlm_pipeline annotation loaders; video_id = file stem under the dataset dirs)
 python -m T2V.data.manifest --msrvtt-dir /data/MSRVTT --msvd-dir /data/MSVD --out T2V/data/manifest.parquet

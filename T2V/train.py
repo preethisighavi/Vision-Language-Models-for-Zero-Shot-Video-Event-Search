@@ -26,7 +26,7 @@ from T2V.data.dataset import LatentDataset, SyntheticLatents, collate
 from T2V.model.dit import build_model
 from T2V.model.encoders import TextEncoder, VideoVAE
 from T2V.model.flow import flow_loss
-from T2V.pipeline import SpartanPipeline, default_device, load_config, tile
+from T2V.pipeline import SpartanPipeline, default_device, load_config, tile, use_bf16
 from T2V.utils.video_io import write_mp4
 
 
@@ -105,7 +105,9 @@ def main():
         print(f"[train] resumed at step {step}")
 
     train_model = torch.compile(model) if tc.get("compile") else model
-    use_bf16 = device == "cuda"
+    bf16 = use_bf16(device)
+    if device == "cuda" and not bf16:
+        print("[train] GPU has no native bf16 (e.g. T4/V100): training in fp32, which is slower")
 
     fixed = next(batches) if a.overfit_one_batch else None
     p_drop = 0.0 if a.overfit_one_batch else tc["caption_dropout"]
@@ -122,7 +124,7 @@ def main():
         x = x.to(device, non_blocking=True)
         caps = ["" if random.random() < p_drop else c for c in caps]
         text, mask, pooled = text_enc(caps)
-        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=use_bf16):
+        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=bf16):
             loss = flow_loss(train_model, x, {"text": text, "text_mask": mask, "pooled": pooled}, t_mode=t_mode)
         if not math.isfinite(loss.item()):
             raise RuntimeError(f"non-finite loss at step {step}; lower lr or check latent normalisation")

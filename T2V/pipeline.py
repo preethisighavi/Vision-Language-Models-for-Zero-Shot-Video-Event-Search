@@ -27,6 +27,16 @@ def default_device() -> str:
     return "cpu"
 
 
+def use_bf16(device: str) -> bool:
+    """bf16 autocast only where the GPU supports it natively (A100/L4/H100, not T4/V100)."""
+    if device != "cuda":
+        return False
+    try:
+        return torch.cuda.is_bf16_supported(including_emulation=False)
+    except TypeError:  # older torch: no emulation flag; fall back to compute capability (Ampere = 8.0+)
+        return torch.cuda.get_device_capability()[0] >= 8
+
+
 class SpartanPipeline:
     def __init__(self, model: SpartanDiT, text_encoder: TextEncoder, vae: VideoVAE | None, cfg: dict, device: str):
         self.model, self.text_encoder, self.vae = model.eval(), text_encoder, vae
@@ -59,7 +69,7 @@ class SpartanPipeline:
         if self._uncond is None:
             self._uncond = self._cond([""])
         uncond = {k: v.expand(len(prompts), *v.shape[1:]) for k, v in self._uncond.items()}
-        dtype = torch.bfloat16 if self.device == "cuda" else torch.float32
+        dtype = torch.bfloat16 if use_bf16(self.device) else torch.float32
         return sample(
             self.model,
             (len(prompts), c, t, h, w),
