@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from app.api import admin as admin_api
 from app.api import catalog as catalog_api
 from app.api import explore as explore_api
+from app.api import generate as generate_api
 from app.api import search as search_api
 from app.api import uploads as uploads_api
 from app.api import videos as videos_api
@@ -76,7 +77,7 @@ def create_app() -> FastAPI:
 
     install_error_handlers(app)
     routers = (catalog_api.router, explore_api.router, search_api.router, uploads_api.router, videos_api.router,
-               admin_api.router)
+               admin_api.router, generate_api.router)
     for router in routers:
         app.include_router(router, prefix=API_PREFIX)
     return app

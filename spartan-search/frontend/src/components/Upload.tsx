@@ -66,16 +66,22 @@ export function UploadDropzone({
   );
 }
 
-const STEPS: { key: string; label: string }[] = [
+const UPLOAD_STEPS: { key: string; label: string }[] = [
   { key: "uploaded", label: "Uploaded" },
   { key: "decoding", label: "Decoded" },
   { key: "embedding", label: "Embedding" },
   { key: "indexed", label: "Indexed" },
 ];
 
+const GENERATE_STEPS: { key: string; label: string }[] = [
+  { key: "generating", label: "Generating" },
+  ...UPLOAD_STEPS.slice(1),
+];
+
 function stepIndex(status: JobInfo["status"]): number {
   switch (status) {
     case "queued":
+    case "generating":
       return 0;
     case "uploaded":
       return 1;
@@ -91,14 +97,16 @@ function stepIndex(status: JobInfo["status"]): number {
 }
 
 /** Four-step stepper: done steps are filled, the current one spins, pending ones are grey rings. */
-export function JobProgress({ job, title }: { job: JobInfo; title: string }) {
+export function JobProgress({ job, title, kind = "upload" }: { job: JobInfo; title: string; kind?: "upload" | "generate" }) {
+  const STEPS = kind === "generate" ? GENERATE_STEPS : UPLOAD_STEPS;
+  const label = kind === "generate" ? "Generation progress" : "Upload progress";
   const failed = job.status === "failed";
   const current = stepIndex(job.status);
   const pct = Math.round(Math.min(Math.max(job.progress, 0), 1) * 100);
   return (
     <div className="card p-5">
       <p className="truncate font-semibold">{title}</p>
-      <ol className="mt-4 flex items-start justify-between gap-2" aria-label="Upload progress">
+      <ol className="mt-4 flex items-start justify-between gap-2" aria-label={label}>
         {STEPS.map((s, i) => {
           const done = i < current;
           const active = i === current && !failed;
@@ -126,7 +134,7 @@ export function JobProgress({ job, title }: { job: JobInfo; title: string }) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={pct}
-        aria-label="Upload progress"
+        aria-label={label}
       >
         <div className="h-full rounded-pill bg-accent transition-[width] duration-300 ease-out" style={{ width: `${pct}%` }} />
       </div>

@@ -19,6 +19,7 @@ const LINKS = [
   { to: "/search", label: "Search" },
   { to: "/compare", label: "Compare" },
   { to: "/upload", label: "Upload" },
+  { to: "/generate", label: "Generate" },
   { to: "/library", label: "Library" },
   { to: "/benchmarks", label: "Benchmarks" },
 ];

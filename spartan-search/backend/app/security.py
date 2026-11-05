@@ -55,3 +55,4 @@ class RateLimiter:
 settings = get_settings()
 search_limiter = RateLimiter(settings.search_rate_per_min, 60)
 upload_limiter = RateLimiter(settings.upload_rate_per_hour, 3600)
+generate_limiter = RateLimiter(settings.generate_rate_per_hour, 3600)

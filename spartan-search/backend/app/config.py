@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     benchmarks_meta: Path = BACKEND_DIR / "benchmarks_meta.yaml"
     search_rate_per_min: int = 60
     upload_rate_per_hour: int = 10
+    # Text-to-video server (T2V/serve.py on the GPU machine); empty disables generation
+    generator_url: str = ""
+    generator_api_key: str = ""
+    generator_timeout_seconds: int = 900
+    generate_rate_per_hour: int = 10
 
     @property
     def db_url(self) -> str:

@@ -18,6 +18,8 @@ export type JobInfo = S["JobInfo"];
 export type BenchmarkRow = S["BenchmarkRow"];
 export type FeedbackRequest = S["FeedbackRequest"];
 export type Health = S["Health"];
+export type GeneratorStatus = S["GeneratorStatus"];
+export type GenerateRequest = S["GenerateRequest"];
 
 export interface AskResponse {
   video_id: string;
@@ -94,6 +96,13 @@ export const api = {
       headers: uploadKey ? { "X-Upload-Key": uploadKey } : undefined,
     });
   },
+  generatorStatus: () => request<GeneratorStatus>("/generate/models"),
+  generate: (req: GenerateRequest, uploadKey?: string) =>
+    request<UploadAccepted>("/generate", {
+      method: "POST",
+      body: JSON.stringify(req),
+      headers: uploadKey ? { "X-Upload-Key": uploadKey } : undefined,
+    }),
   job: (id: string) => request<JobInfo>(`/jobs/${encodeURIComponent(id)}`),
   benchmarks: () => request<BenchmarkRow[]>("/benchmarks"),
   feedback: (req: FeedbackRequest) => post<{ status: string }>("/feedback", req),

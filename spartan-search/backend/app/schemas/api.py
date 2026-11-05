@@ -173,7 +173,24 @@ class UploadAccepted(BaseModel):
     job_id: str
 
 
-JobStatus = Literal["queued", "uploaded", "decoding", "embedding", "indexed", "failed"]
+JobStatus = Literal["queued", "generating", "uploaded", "decoding", "embedding", "indexed", "failed"]
+
+
+class GeneratorModel(BaseModel):
+    id: str
+    label: str
+
+
+class GeneratorStatus(BaseModel):
+    available: bool
+    models: list[GeneratorModel]
+    message: str = ""
+
+
+class GenerateRequest(BaseModel):
+    prompt: str = Field(min_length=3, max_length=300)
+    model: str
+    seed: int = Field(default=0, ge=0, le=2**31 - 1)
 
 
 class JobInfo(BaseModel):

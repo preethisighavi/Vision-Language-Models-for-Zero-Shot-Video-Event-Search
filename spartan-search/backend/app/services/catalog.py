@@ -13,6 +13,7 @@ DEFAULT_COLLECTIONS = [
     ("msrvtt-1ka", "MSR-VTT 1k-A", "Clips from the MSR-VTT 1k-A test set."),
     ("msvd-test", "MSVD test", "Clips from the MSVD test split."),
     ("uploads", "Your uploads", "Videos uploaded through this site."),
+    ("generated", "Generated", "Clips made from text prompts by the text-to-video models."),
 ]
 
 

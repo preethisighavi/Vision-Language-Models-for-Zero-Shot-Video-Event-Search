@@ -72,6 +72,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/videos/{video_id}/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask
+         * @description Answer a question from this video only. The answer is the matching moment.
+         */
+        post: operations["ask_api_v1_videos__video_id__ask_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/search/compare": {
         parameters: {
             query?: never;
@@ -301,10 +321,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/generate/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Generator Status */
+        get: operations["generator_status_api_v1_generate_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate */
+        post: operations["generate_api_v1_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AskResponse */
+        AskResponse: {
+            /** Video Id */
+            video_id: string;
+            /** Model */
+            model: string;
+            /** Query */
+            query: string;
+            /** Answer */
+            answer: string;
+            /** Spans */
+            spans: components["schemas"]["Span"][];
+            /** Saliency */
+            saliency: number[];
+            /** Saliency Fps */
+            saliency_fps: number;
+            /** Latency Ms */
+            latency_ms: number;
+        };
         /** BenchmarkRow */
         BenchmarkRow: {
             /** Model */
@@ -408,6 +481,37 @@ export interface components {
             /** Relevant */
             relevant: boolean;
         };
+        /** GenerateRequest */
+        GenerateRequest: {
+            /** Prompt */
+            prompt: string;
+            /** Model */
+            model: string;
+            /**
+             * Seed
+             * @default 0
+             */
+            seed: number;
+        };
+        /** GeneratorModel */
+        GeneratorModel: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+        };
+        /** GeneratorStatus */
+        GeneratorStatus: {
+            /** Available */
+            available: boolean;
+            /** Models */
+            models: components["schemas"]["GeneratorModel"][];
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -451,7 +555,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "queued" | "uploaded" | "decoding" | "embedding" | "indexed" | "failed";
+            status: "queued" | "generating" | "uploaded" | "decoding" | "embedding" | "indexed" | "failed";
             /** Progress */
             progress: number;
             /** Step Detail */
@@ -796,6 +900,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LocalizeResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ask_api_v1_videos__video_id__ask_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                video_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LocalizeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AskResponse"];
                 };
             };
             /** @description Not Found */
@@ -1549,6 +1706,97 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generator_status_api_v1_generate_models_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneratorStatus"];
+                };
+            };
+        };
+    };
+    generate_api_v1_generate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-upload-key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadAccepted"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

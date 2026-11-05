@@ -6,6 +6,7 @@ import { Footer, NavBar } from "../components/NavBar";
 import { AboutPage } from "../pages/About";
 import { BenchmarksPage } from "../pages/Benchmarks";
 import { ComparePage } from "../pages/Compare";
+import { GeneratePage } from "../pages/Generate";
 import { HomePage } from "../pages/Home";
 import { LibraryPage } from "../pages/Library";
 import { NotFoundPage } from "../pages/NotFound";
@@ -21,7 +22,10 @@ export function makeQueryClient() {
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => {
+    // braces matter: newer Chromium returns a Promise from scrollTo, which React would treat as a cleanup
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 }
 
@@ -47,6 +51,7 @@ export function AppRoutes() {
         <Route path="video/:id" element={<VideoDetailPage />} />
         <Route path="compare" element={<ComparePage />} />
         <Route path="upload" element={<UploadPage />} />
+        <Route path="generate" element={<GeneratePage />} />
         <Route path="library" element={<LibraryPage />} />
         <Route path="benchmarks" element={<BenchmarksPage />} />
         <Route path="about" element={<AboutPage />} />
